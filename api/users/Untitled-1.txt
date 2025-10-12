@@ -1,0 +1,9 @@
+TABLES ZITAKAZOHUSIKA:
+1. USERS kwenye list ya user ( CREATE TABLE `users` (`id` int(11) NOT NULL,`fname` varchar(100) NOT NULL, `lname` varchar(100) NOT NULL, `email` varchar(100) NOT NULL, `phone` varchar(14) NOT NULL,  `password` varchar(255) NOT NULL, `role_id` int(11) NOT NULL, `is_verified` tinyint(1) DEFAULT 0, `is_admin` int(11) NOT NULL DEFAULT 0,  `lab_tech_id` int(11) NOT NULL,  `user_project_id` int(11) NOT NULL,  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()) ; )
+   USERS table iwe na actions zenye selection list ya options hizi:
+   columns na options zake ninazotaka ni:
+  `role_id` - itoe list ya all roles ('id','name'),
+  `is_verified` - itoe list ya integer (0,1), - hardcoded,
+  `is_admin`  - itoe list ya integer (0,1), - hardcoded
+  `lab_tech_id` - itoe list from lab_technicians, - hii iangalie kuwa hii user_id ipo kwenye lab_technicians table then 
+  `user_project_id` - itoe list ya projects ambazo hajakuwa assigned - from projects table - (`project_id`) - (kwanza ifanye checking ya existance ya User_id  project_id kwa hiyo row husika from user_projects). 

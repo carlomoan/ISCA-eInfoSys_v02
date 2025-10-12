@@ -1,0 +1,511 @@
+/* Reset basics */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f6fa;
+  color: #333;
+  min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
+}
+body.dark {
+  background-color: #121212;
+  color: #ddd;
+}
+
+/* Container layout */
+.container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar styling */
+.sidebar {
+  margin-top: 49px;
+  width: 20%;
+  background-color: #00aced;
+  color: #fff;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  transition: transform 0.3s ease;
+}
+.sidebar.active {
+  transform: translateX(-100%);
+}
+
+/* Sidebar header/user info */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+
+
+.brand-name {
+  font-weight: bold;
+}
+
+/* Brand Image container */
+.brand-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Ensures it stays aligned */
+}
+
+/* Brand image styling (circle shape) */
+.brand-image {
+  width: 40px; /* Set the width of the brand image */
+  height: 40px; /* Set the height of the brand image */
+  /* border-radius: 50%;  Creates the circle shape */
+  object-fit:fill; /* Ensures the image fits within the circle */
+  box-shadow: 0 2px 6px rgba(242, 236, 236, 0.3); /* Optional: Adds shadow for a 3D effect */
+}
+
+
+.brand-name-sidebar {
+  font-weight: bold;
+}
+
+/* Brand Image container */
+.brand-image-sidebar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Ensures it stays aligned */
+}
+
+/* Brand image styling (circle shape) */
+.brand-image-sidebar {
+  width: 40px; /* Set the width of the brand image */
+  height: 40px; /* Set the height of the brand image */
+  border-radius: 50%; /*  Creates the circle shape */
+  object-fit:fill; /* Ensures the image fits within the circle */
+  box-shadow: 0 2px 6px rgba(242, 236, 236, 0.3); /* Optional: Adds shadow for a 3D effect */
+}
+
+  .system-name {
+  font-size: 0.5rem;
+  border-bottom: 0px solid rgba(255,255,255,0.3);
+  border-top: 0px solid rgba(255,255,255,0.3);
+}
+.system-name h4 {
+  font-size: 0.9rem;
+}
+  .user-info {
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  border-top: 1px solid rgba(255,255,255,0.3);
+}
+.user-info p {
+  margin: 5px 0;
+}
+
+/* Navigation links */
+.menu-list a {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 5px;
+  color: #242222;
+  background-color: #b5ecff;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.menu-list a i {
+  margin-right: 10px;
+}
+.menu-list a:hover {
+  background-color: #81d4fa;
+}
+.menu-list a.active-link {
+  background-color: #0288d1 !important;
+  color: #fff;
+  font-weight: bold;
+}
+.menu-list a.disabled-link {
+  opacity: 0.5;
+  pointer-events: none;
+  background-color: #eee !important;
+  color: #aaa !important;
+}
+
+/* Sidebar footer */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255,255,255,0.3);
+}
+.sidebar-footer h4 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+}
+.roles-list, .permissions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.role-item, .permission-item {
+  background-color: rgba(255,255,255,0.2);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  user-select: none;
+}
+
+/* Main content area */
+.content {
+  width: auto;
+  margin-top: 50px;
+  flex: 1;
+  background-color: #fff;
+  padding: 20px 30px;
+  overflow-y: auto;
+  transition: background-color 0.3s, color 0.3s;
+}
+body.dark .content {
+  background-color: #1e1e1e;
+}
+
+/* Default Topbar */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0; /* Hakikisha topbar inachukua full width bila nafasi upande wa kushoto */
+  width: 100%; /* Topbar itachukua 100% ya screen width */
+  height: 7%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #00aced;
+  color: white;
+  padding: 0 20px;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(110, 109, 109, 0.2);
+  transition: left 0.3s ease; /* Smooth transition wakati inasogea */
+}
+
+.topbar-right {
+  background-color: #00aced;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0px;
+  justify-content: flex-end;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+#menu-toggle, #dark-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+}
+#menu-toggle { color: #155ba1; }
+#dark-toggle { color:  #ffffff; }
+body.dark #dark-toggle {
+  color:  #283134;;
+}
+
+/* Page title */
+.page-title {
+  color:#ffffff;
+  font-size: 1rem;
+  font-weight: 300;
+}
+
+/* Profile dropdown */
+.profile-dropdown {
+  position: relative;
+}
+#profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.profile-dropdown .dropdown-menu {
+  
+  font-size: 0.8rem;
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 0px;
+  flex-direction: column;
+  min-width: 180px;
+  z-index: 10;
+}
+.profile-dropdown .dropdown-menu.show {
+  display: flex;
+}
+.profile-dropdown .dropdown-menu a {
+  padding: 10px 15px;
+  color: #00aced;
+  text-decoration: none;
+}
+.profile-dropdown .dropdown-menu a:hover {
+  background-color: #f0f0f0;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  color: #666;
+}
+.breadcrumbs a {
+  color: #00aced;
+  text-decoration: none;
+}
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+body.dark .breadcrumbs { color: #bbb; }
+
+/* Cards layout */
+.cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.card {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  flex: 1;
+  min-width: 200px;
+  text-align: center;
+}
+.card:hover {
+  transform: translateY(-3px);
+  transition: transform 0.2s;
+}
+.card h3 {
+  margin-bottom: 10px;
+  color: #555;
+}
+.card p {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2e86de;
+}
+body.dark .card {
+  background-color: #2c2c2c;
+}
+body.dark .card h3 {
+  color: #bbb;
+}
+body.dark .card p {
+  color: #6cb4ff;
+}
+
+.reports-table th, .reports-table td {
+    border: 1px solid #ddd;
+}
+
+.reports-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.btn {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.btn-secondary:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 10px;
+  background-color: #00aced;
+  color: #fff;
+}
+
+
+.footer {
+    background: #f8f9fa;
+    padding: 5px 20px;
+    text-align: center;
+    font-size: 13px;
+    color: #666666;
+    line-height: 1.4;
+    border-top: 1px solid #ddd;
+}
+
+/* Media query kwa screens ndogo (max width 600px) */
+@media (max-width: 600px) {
+    .footer {
+        padding: 8px 10px;    /* kidogo padding zaidi kwa mobile */
+        font-size: 12px;      /* font ndogo kidogo kwa mobile */
+        line-height: 1.3;
+    }
+}
+
+
+
+/* Mobile View: Weka Topbar iwe 100% ya screen */
+@media (max-width: 768px) {
+  .topbar {
+    left: 0; /* Topbar inachukua full width ya screen kwenye mobile */
+    width: 100%; /* 100% ya screen */
+    padding: 0 15px;
+    height: 50px;  /* Unaweza kupunguza height kwenye mobile view */
+  }
+
+  /* Sidebar settings kwa mobile */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%; /* Sidebar itachukua upana wote kwenye screen ndogo */
+    height: 100vh; /* Sidebar itachukua height yote ya screen */
+    background-color: #00aced;
+    z-index: 999;
+  }
+}
+
+
+
+
+/* Responsive behavior */
+/* Mobile View: Weka Topbar iwe 100% ya screen */
+@media (max-width: 768px) {
+  .topbar {
+    font-size: 14px;
+    left: 0; /* Topbar inachukua full width */
+    width: 100%;/* 100% ya screen */
+    padding: 0 15px; /* Punguza padding kidogo kwa screen ndogo */
+  }
+  .sidebar {
+    position: fixed;
+    top: 60px; /* place below sticky topbar */
+    left: 0px;
+    height: calc(100% - 60px);
+    width:auto;
+    background-color: #00aced;
+    z-index: 50;
+  }
+  .sidebar.active {
+    left: 0;
+  }
+  .container {
+    flex-direction: column;
+    height: auto;
+  }
+  .content {
+    padding: 15px;
+  }
+}
+
+/* Mobile View Adjustments */
+@media (max-width: 768px) {
+  .brand-image {
+    width: 30px; /* Reduce size of the brand image on mobile */
+    height: 30px; /* Reduce size */
+  }
+}
+
+/* Sidebar and Content Adjustments for Mobile */
+@media (max-width: 768px) {
+  /* Sidebar should take 60% of the screen width for mobile */
+  .sidebar {
+    position: fixed;
+    top: 60px;  /* Sidebar appears below the topbar */
+    left: 0;
+    width: 60%; /* Sidebar width on mobile */
+    height: calc(100vh - 60px); /* Height adjusted for topbar */
+    z-index: 50;
+    background-color: #00aced;
+    overflow-y: auto;
+  }
+
+  /* Adjust topbar for mobile */
+  .topbar {
+    left: 0;
+    width: 100%; /* Full width */
+    padding: 0 15px;
+    height: 50px; /* Smaller height for mobile */
+  }
+
+  /* Content adjustments for mobile */
+  .container {
+    flex-direction: column; /* Stack elements vertically */
+    height: auto;
+  }
+
+  .content {
+    padding: 15px; /* Adjust padding for mobile */
+  }
+
+  /* Responsive layout for cards (analysis reports) */
+  .cards {
+    display: flex;
+    flex-direction: column; /* Stack cards vertically on mobile */
+    gap: 20px;
+  }
+
+  .card {
+    flex: 1;
+    min-width: 100%; /* Cards should take full width */
+    box-sizing: border-box; /* Adjust width for mobile */
+  }
+}
+
+/* For desktop view, ensure content fills properly */
+@media (min-width: 769px) {
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .card {
+    flex: 1;
+    min-width: 250px; /* Ensure cards are responsive */
+    box-sizing: border-box;
+  }
+}

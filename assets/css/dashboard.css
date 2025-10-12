@@ -1,0 +1,203 @@
+/* dashboard.css - updated styling for eDataColls Dashboard */
+
+/* Base styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Calibri, sans-serif;
+  font-size: 10px;
+  background-color: #f9f9f9;
+  color: #312f2f;
+  height: 100%;
+  min-height: 100vh;
+  line-height: 1.4;
+}
+
+/* Container */
+.container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Cards */
+.card {
+    border-radius: 0px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* Summary cards */
+.summary-cards .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.summary-cards .card h6 {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+
+
+/* Charts */
+.chart-container {
+    height: 250px;
+}
+
+.card canvas {
+    max-height: 200px;  /* smaller charts for visual appeal */
+}
+
+/* Map */
+#map {
+    width: 100%;
+    height: 400px;
+    border-radius: 0px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* Tables */
+#clusterTable {
+  width: 100% !important;
+  font-size: 0.85rem;
+}
+
+#clusterTable td {
+  vertical-align: top;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Household list */
+.household-list {
+  display: none;
+  max-height: 180px;
+  overflow-y: auto;
+  margin: 5px 0 0 0;
+  padding-left: 15px;
+  list-style-type: circle;
+}
+
+.household-list li {
+  cursor: pointer;
+  margin: 2px 0;
+  padding: 2px 5px;
+  transition: background 0.2s;
+}
+
+.household-list li:hover {
+  background: #f0f8ff;
+  color: #1e1d1d;
+  border-radius: 4px;
+}
+
+/* Links */
+.hh-link {
+  cursor: pointer;
+  color: #0d6efd;
+}
+.hh-link:hover {
+  text-decoration: underline;
+}
+
+/* Project section */
+.project-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  font-size: 11px;
+  color: #333;
+}
+
+.project-meta span {
+  background: #f8f9fa;
+  padding: 3px 8px;
+  border-radius: 0px;
+  border: 1px solid #e0e0e0;
+}
+
+/* Notices */
+.no-project {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 13px;
+  border-radius: 0px;
+  margin-top: 10px;
+}
+
+.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+/* Toggle buttons */
+.toggle-households {
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+    padding: 2px 6px;
+    margin-right: 5px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s ease-in-out;
+}
+
+.toggle-households:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* Responsive adjustments */
+@media(max-width:768px){
+    .chart-container {
+        height: 200px;
+    }
+    #map {
+        height: 300px;
+    }
+    .summary-cards .card p {
+        font-size: 0.8rem;
+    }
+    .summary-cards .card h6 {
+        font-size: 0.75rem;
+    }
+}
+
+.summary-cards .card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0; /* removed padding so icon bg reaches edge */
+    height: 60px; /* fixed height for consistent cards */
+    overflow: hidden;
+}
+
+.icon-container {
+    width: 25%;          /* 25% of card width */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    height: 100%;
+}
+
+.card-text {
+    width: 75%;          /* 75% for text */
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+

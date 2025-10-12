@@ -1,0 +1,49 @@
+<?php
+// Load config FIRST to ensure proper session initialization
+require_once __DIR__ . '/../../config/config.php';
+require_once ROOT_PATH . 'config/db_connect.php';
+
+header('Content-Type: application/json');
+
+$allowedViews = [
+    'vw_merged_field_lab_data',
+    'vw_reports_summary',
+    'vw_annual_reports',
+    'vw_monthly_stats',
+    'vw_lab_reports',
+    'vw_field_data_reports'
+];
+
+$view = $_GET['view'] ?? '';
+$view = preg_replace('/[^a-zA-Z0-9_]/','',$view);
+if(!in_array($view,$allowedViews)){
+    http_response_code(400);
+    echo json_encode(['success'=>false,'message'=>'Invalid view selected.']);
+    exit;
+}
+
+$action = $_GET['action'] ?? null;
+try {
+    if($action==='rounds'){
+        $stmt=$pdo->prepare("SELECT DISTINCT round FROM `$view` WHERE round IS NOT NULL ORDER BY round ASC");
+        $stmt->execute();
+        $rounds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        echo json_encode(['success'=>true,'rounds'=>$rounds]);
+        exit;
+    }
+
+    $round = $_GET['round'] ?? null;
+    if($round && $round!=='0'){
+        $stmt = $pdo->prepare("SELECT * FROM `$view` WHERE round=? ORDER BY 1 DESC LIMIT 500");
+        $stmt->execute([$round]);
+    }else{
+        $stmt = $pdo->prepare("SELECT * FROM `$view` ORDER BY 1 DESC LIMIT 500");
+        $stmt->execute();
+    }
+
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode(['success'=>true,'data'=>$results]);
+} catch(PDOException $e){
+    http_response_code(500);
+    echo json_encode(['success'=>false,'message'=>'Database error.','error'=>$e->getMessage()]);
+}

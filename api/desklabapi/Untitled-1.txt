@@ -1,0 +1,5 @@
+ Query error:   :
+#1833 - Cannot change column 'cluster_id': used in a foreign key constraint 'fk_deskfieldcollector_cluster' of table 'survey_amrc_db.desk_field_collector'
+
+UKICHANGE INALETA HIYO ERROR, NIFANYEJE MSAADA:
+desk_lab_sorter.cluster_id is int, clusters.cluster_id is varchar. Consider changing either table to match,

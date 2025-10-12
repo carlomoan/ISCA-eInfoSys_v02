@@ -1,0 +1,63 @@
+# ================================================
+# SENSITIVE FILES - DO NOT COMMIT
+# ================================================
+.env
+.env.local
+.env.*.local
+
+# ================================================
+# VENDOR & DEPENDENCIES
+# ================================================
+/vendor/
+/node_modules/
+composer.lock
+package-lock.json
+
+# ================================================
+# UPLOADS & USER GENERATED CONTENT
+# ================================================
+/uploads/*
+!/uploads/.gitkeep
+/backups/*
+!/backups/.gitkeep
+
+# ================================================
+# LOGS & TEMPORARY FILES
+# ================================================
+/logs/*
+!/logs/.gitkeep
+*.log
+*.tmp
+*.temp
+*.cache
+
+# ================================================
+# IDE & SYSTEM FILES
+# ================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ================================================
+# DATABASE & BACKUP FILES
+# ================================================
+*.sql
+*.sql.gz
+*.sql.zip
+*.db
+*.sqlite
+*.sqlite3
+
+# ================================================
+# SECURITY & CREDENTIALS
+# ================================================
+*.key
+*.pem
+*.crt
+*.p12
+credentials.json
+secrets.json

@@ -1,0 +1,68 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto auto auto auto;
+  grid-template-areas:
+    "header header header header"
+    "map gambiae funestus summary"
+    "map culex aedes summary"
+    "map piechart barchart activity";
+  gap: 10px;
+  padding: 10px;
+}
+
+/* Areas */
+.header { grid-area: header; background: #f0f0f0; padding: 10px; }
+.project-summary { grid-area: summary; background: #e8f5e9; padding: 10px; }
+.map { grid-area: map; background: #fce4ec; padding: 10px; }
+.gambiae { grid-area: gambiae; background: #fff3e0; padding: 10px; }
+.funestus { grid-area: funestus; background: #e3f2fd; padding: 10px; }
+.culex { grid-area: culex; background: #fffde7; padding: 10px; }
+.aedes { grid-area: aedes; background: #f1f8e9; padding: 10px; }
+.pie-chart { grid-area: piechart; background: #f3e5f5; padding: 10px; }
+.bar-chart { grid-area: barchart; background: #ede7f6; padding: 10px; }
+.recent-activity { grid-area: activity; background: #e0f7fa; padding: 10px; }
+
+
+/* Basic styling */
+.dashboard-grid h1, .dashboard-grid h2, .dashboard-grid h3 {
+  margin: 0 0 5px;
+  font-family: Calibri, sans-serif;
+}
+
+.dashboard-grid p, .dashboard-grid span, .dashboard-grid li {
+  font-size: 12px;
+  margin: 3px 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "header header"
+      "summary gambiae"
+      "summary funestus"
+      "map map"
+      "culex aedes"
+      "piechart barchart"
+      "activity activity";
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "summary"
+      "gambiae"
+      "funestus"
+      "map"
+      "culex"
+      "aedes"
+      "piechart"
+      "barchart"
+      "activity";
+  }
+}

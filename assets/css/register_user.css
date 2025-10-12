@@ -1,0 +1,349 @@
+/* ===== Body & Page Container ===== */
+body {
+    background: #f9f9f9;
+    font-family: Calibri, sans-serif;
+    font-size: 14px;
+}
+
+.public-page-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 25px;
+    background: #fff;
+    border-radius: 0px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* ===== System Header ===== */
+.system-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.system-header .header-logo-left,
+.system-header .header-logo-right {
+    max-height: 50px;
+    object-fit: contain;
+}
+.system-header .system-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    flex: 1;
+    color: #007bff;
+}
+
+/* ===== Registration Header Above Wizard ===== */
+.registration-header {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* ===== Wizard Steps ===== */
+.wizard-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.wizard-steps .step {
+    text-align: center;
+    flex: 1;
+    position: relative;
+}
+
+.wizard-steps .step .step-dot {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 50%;
+    background: #ccc;
+    color: #fff;
+    font-weight: bold;
+}
+
+.wizard-steps .step.active .step-dot {
+    background: #007bff;
+}
+
+.wizard-steps .step.completed .step-dot {
+    background: #28a745;
+}
+
+.wizard-step {
+    display: none;
+}
+.wizard-step.active {
+    display: block;
+}
+
+/* ===== Form Groups & Inputs ===== */
+.form-group {
+    margin-bottom: 15px;
+}
+label {
+    display: block;
+    margin-bottom: 6px;
+}
+input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+}
+
+/* ===== Buttons ===== */
+.actions {
+    margin-top: 20px;
+    text-align: right;
+}
+.btn {
+    padding: 6px 14px;
+    border-radius: 0px;
+    cursor: pointer;
+}
+.btn-primary {
+    background: #007bff;
+    border: none;
+    color: #fff;
+}
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+    color: #fff;
+}
+.btn-light {
+    background: #f1f1f1;
+    border: none;
+}
+
+/* ===== Confirmation Table ===== */
+.confirmation-table {
+    margin: 15px 0;
+}
+.confirmation-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.confirmation-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #eee;
+}
+
+/* ===== Toast Messages ===== */
+#toast-container {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 9999;
+}
+.toast {
+    background: #333;
+    color: #fff;
+    padding: 10px 15px;
+    margin-top: 10px;
+    border-radius: 0px;
+    opacity: 0;
+    transition: all .4s ease;
+}
+.toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.toast.success {
+    background: #28a745;
+}
+.toast.error {
+    background: #dc3545;
+}
+
+/* ===== Password Strength Bar ===== */
+.password-strength-wrapper {
+    width: 100%;
+    height: 6px;
+    border-radius: 4px;
+    background: #eee;
+    margin-top: 4px;
+    overflow: hidden;
+}
+.password-strength-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 4px;
+    transition: width 0.3s, background 0.3s;
+}
+/* Indicator text */
+.password-strength-text {
+    font-size: 0.85em;
+    margin-top: 3px;
+    font-weight: bold;
+}
+
+/* ==================== GLOBAL ==================== */
+body {
+    background: #f9f9f9;
+    font-family: Calibri, sans-serif;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+}
+
+.public-page-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 25px;
+    background: #fff;
+    border-radius: 0px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* ==================== HEADER ==================== */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.page-header img {
+    max-height: 50px;
+    object-fit: contain;
+}
+
+.page-header .system-title {
+    flex: 1;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* ==================== WIZARD ==================== */
+.wizard-info-header {
+    margin-bottom: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #333;
+}
+
+.wizard-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.wizard-steps .step {
+    text-align: center;
+    flex: 1;
+    position: relative;
+}
+
+.wizard-steps .step .step-dot {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 50%;
+    background: #ccc;
+    color: #fff;
+    font-weight: bold;
+}
+
+.wizard-steps .step.active .step-dot {
+    background: #007bff;
+}
+
+.wizard-steps .step.completed .step-dot {
+    background: #28a745;
+}
+
+.wizard-step { display: none; }
+.wizard-step.active { display: block; }
+
+.actions { margin-top: 20px; text-align: right; }
+.btn { padding: 6px 14px; border-radius: 0px; cursor: pointer; }
+.btn-primary { background: #007bff; border: none; color: #fff; }
+.btn-secondary { background: #6c757d; border: none; color: #fff; }
+.btn-light { background: #f1f1f1; border: none; }
+
+.form-group { margin-bottom: 15px; }
+label { display: block; margin-bottom: 6px; }
+input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 0px; }
+
+.confirmation-table { margin: 15px 0; }
+.confirmation-table table { width: 100%; border-collapse: collapse; }
+.confirmation-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
+
+/* ==================== TOAST ==================== */
+#toast-container { position: fixed; top: 15px; right: 15px; z-index: 9999; }
+.toast { background: #333; color: #fff; padding: 10px 15px; margin-top: 10px;
+         border-radius: 0px; opacity: 0; transition: all .4s ease; }
+.toast.visible { opacity: 1; transform: translateY(0); }
+.toast.success { background: #28a745; }
+.toast.error { background: #dc3545; }
+
+/* ==================== PASSWORD STRENGTH ==================== */
+.password-strength-wrapper {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: #eee;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 4px;
+    transition: width 0.4s ease, background 0.4s ease;
+    background: linear-gradient(to right, red, orange);
+}
+
+.password-strength-text {
+    font-size: 0.85em;
+    margin-top: 3px;
+    font-weight: bold;
+    display: block;
+    color: #555;
+}
+
+/* ==================== INDICATORS ==================== */
+.input-indicator {
+    margin-top: 2px;
+    font-size: 0.85em;
+    color: #555;
+}
+
+.input-indicator span.indicator {
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .public-page-container {
+        margin: 20px 10px;
+        padding: 20px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .page-header .system-title {
+        margin: 10px 0;
+    }
+
+    .wizard-steps { flex-direction: column; gap: 10px; }
+    .wizard-steps .step { flex: none; }
+}

@@ -1,0 +1,258 @@
+/* === General Page Styling === */
+body, .tab-content {
+    font-family: Calibri, sans-serif;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+}
+
+.reports-page, .data_entry-page {
+    padding: 15px;
+}
+
+/* === Tabs === */
+.tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.tab-btn {
+    padding: 6px 12px;
+    border: none;
+    background-color: #2b1e59;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.tab-btn.active {
+    background-color: #43307d;
+}
+
+/* Top Actions inline */
+.top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 5px 0;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.top-actions .left-actions,
+.top-actions .right-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* form-group inline: label + input/select on same line */
+.top-actions .form-group {
+    display: flex;
+    flex-direction: row; /* inline */
+    align-items: center;
+    gap: 5px;
+}
+
+.top-actions label {
+    font-weight: bold;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.top-actions select,
+.top-actions input[type="text"],
+.top-actions input[type="number"] {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    min-width: 80px;
+}
+
+.top-actions button {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+    background-color: #2b1e59;
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.top-actions button:hover {
+    background-color: #43307d;
+}
+
+
+/* === Table Wrapper & Scroll === */
+.table-wrapper {
+    max-height: 500px;
+    overflow: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* === Table Styling === */
+.reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.reports-table th,
+.reports-table td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.reports-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f0f0f0;
+    z-index: 2;
+}
+
+/* Sticky Columns */
+.reports-table th:nth-child(1),
+.reports-table td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    background-color: #f9f9f9;
+    z-index: 3;
+}
+.reports-table th:nth-child(2),
+.reports-table td:nth-child(2) {
+    position: sticky;
+    left: 60px;
+    background-color: #f9f9f9;
+    z-index: 2;
+}
+.reports-table th:nth-child(3),
+.reports-table td:nth-child(3) {
+    position: sticky;
+    left: 140px;
+    background-color: #f9f9f9;
+    z-index: 2;
+}
+
+/* Alternate row colors */
+.reports-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+.reports-table tbody tr:hover {
+    background-color: #f1f1ff;
+}
+
+/* === Pagination === */
+.pagination-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+    justify-content: center;
+}
+
+.pagination-wrapper button {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.pagination-wrapper button.active {
+    background-color: #2b1e59;
+    color: white;
+    border-color: #2b1e59;
+}
+
+/* === Upload Form === */
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.upload-form label {
+    font-weight: bold;
+}
+
+.upload-form input[type="text"],
+.upload-form input[type="number"],
+.upload-form input[type="file"],
+.upload-form button {
+    padding: 4px 8px;
+    font-size: 12px;
+    max-width: 200px;
+}
+
+.upload-summary {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* === Modal === */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 20px auto;
+    padding: 15px;
+    border-radius: 6px;
+    width: 90%;
+    max-height: 90%;
+    overflow: auto;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* === Toast === */
+#toast {
+    visibility: hidden;
+    min-width: 200px;
+    margin-left: -100px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 6px;
+    position: fixed;
+    z-index: 9999;
+    left: 50%;
+    bottom: 30px;
+    font-size: 12px;
+}
+
+#toast.show { visibility: visible; }
+#toast.error { background-color: #d9534f; }
+
+
+

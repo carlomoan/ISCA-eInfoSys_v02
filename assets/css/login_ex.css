@@ -1,0 +1,328 @@
+/* Global font setup */
+body {
+    font-family: Calibri, sans-serif;
+    font-size: 10px;
+    margin: 0;
+    background-color: #f5f7ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+:root {
+  --color-primary: #00aced;
+  --color-border: #d0d0d6;
+}
+
+/* Container layout */
+.login-container {
+    display: flex;
+    width: 600px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(58, 90, 137, 0.2);
+    height: 300px; /* fixed height for good slider display */
+}
+
+/* Left side */
+.login-left {
+    flex: 1;
+    color: white;
+    padding: 5px;
+    padding-right: 25px;
+    background:#fff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Navigation bar inside left */
+.top-nav {
+    position: absolute;
+    width: 100%;
+    top: 10px;
+    left: 15px;
+    background-color: rgba(113, 92, 190, 0.85);
+    padding: 0px 15px;
+    border-radius: 4px;
+    z-index: 10;
+    font-size: 11px;
+    display: flex;
+    gap: 1px;
+    font-weight: bold;
+}
+
+.top-nav a {  
+  color: #fff;
+  padding: 6px 10px;
+  text-decoration: none;
+  border-radius: 0px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: inline-block;
+}
+
+.top-nav a:hover,
+.top-nav a:focus {
+  background-color: lightblue;
+  color: yellow;
+  text-decoration: none;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+/* Slider */
+.slider-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.slider-container img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit:contain;
+    top: 0;
+    left: 0;
+    display: none;
+    z-index: 5;
+}
+.slider-container img.active {
+    display: block;
+    z-index: 7;
+}
+.slider-nav {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    padding: 0 10px;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+    z-index: 15;
+}
+.slider-nav button {
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    color: white;
+    font-size: 22px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.slider-nav button:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* Right side */
+.login-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border-left: 1px solid var(--color-primary);
+    padding: 15px 25px 20px;
+}
+
+/* Brand header container */
+.brand-header {
+    display: flex;
+    align-items: center; /* perfect vertical alignment */
+    justify-content: space-between;
+    width: 100%;
+    max-width: 450px;
+    margin-top: 5px;
+    margin-bottom: 4px; /* reduced gap below header */
+}
+
+.brand-header img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
+.brand-header .brand-title {
+    flex: 1;
+    text-align: center;
+    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.brand-header .brand-title h4,
+.brand-header .brand-title h5 {
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+}
+
+.brand-header .brand-title h4 {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.brand-header .brand-title h5 {
+    font-size: 9px;
+    color: #777;
+}
+
+/* Login box */
+.login-box-header {
+    width: 90%;
+    max-width: 290px;
+    margin-top: 5px; /* reduced gap between header and form */
+}
+.login-box {
+    margin-top: 20px;
+    width: 85%;
+    max-width: 300px;
+}
+
+/* Floating label */
+.form-group {
+    position: relative;
+    margin-bottom: 10px;
+}
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    font-size: 9px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+.form-group input:focus {
+    border-color: var(--color-primary);
+}
+.form-group label {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: var(--color-primary);
+    font-size: 9px;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    background: transparent;
+    padding: 0;
+}
+.form-group input:focus + label,
+.form-group input:not(:placeholder-shown) + label {
+    top: -1px;
+    left: 8px;
+    background: #fff;
+    padding: 0 4px;
+    font-size: 9px;
+    color: var(--color-primary);
+}
+
+/* Button */
+button[type="submit"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 0px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 11px;
+    color: #fff;
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary) 100%);
+    box-shadow: 0 8px 25px rgba(61, 65, 70, 0.2);
+    transition: transform .12s ease, opacity .12s;
+}
+button[type="submit"]::after {
+    content: "→";
+    font-weight: 800;
+    margin-left: 4px;
+    transform: translateY(0);
+}
+button[type="submit"]:hover { transform: translateY(-2px); }
+
+input, button {
+  box-sizing: border-box;
+}
+
+/* Links */
+.links {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--color-primary);
+}
+.links a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+.links a:hover {
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 920px) {
+  .login-container {
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  .login-left {
+    order: 1;
+    height: 100vh;
+    width: 100vw;
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    background: #2b1e59;
+  }
+  .top-nav {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(118, 90, 219, 0.85);
+    padding: 6px 18px;
+    border-radius: 0px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    gap: 15px;
+    z-index: 10;
+  }
+  .slider-container {
+    flex: 1;
+    width: 100%;
+    height: calc(100vh - 50px);
+    position: relative;
+  }
+  .login-right {
+    order: 2;
+    width: 100vw;
+    height: auto;
+    padding: 25px 20px;
+    background: #fff;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+}
+@media (max-width: 480px) {
+  .login-left {
+    height: 100vh;
+  }
+  .login-right {
+    padding: 20px 15px;
+  }
+}
