@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         loadAnalytics();
                     } else if (targetTab === 'submitted') {
                         loadSubmittedReports();
+                    } else if (targetTab === 'add') {
+                        loadRecentUploads();
                     }
                 }
             });
@@ -100,7 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         container.innerHTML = '<p class="text-center">No data available</p>';
                     }
                 })
-                .catch(err => {
+                .catch(error => {
+                    console.error('Error loading generated reports:', error);
                     container.innerHTML = '<p class="text-center text-danger">Error loading data</p>';
                 });
         }
@@ -156,16 +159,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
 
             if (result.success) {
-                // Update metrics
-                document.getElementById('totalMosquitoes').textContent = result.metrics.total_mosquitoes || 0;
-                document.getElementById('totalHouseholds').textContent = result.metrics.total_households || 0;
-                document.getElementById('totalClusters').textContent = result.metrics.total_clusters || 0;
-                document.getElementById('totalRounds').textContent = result.metrics.total_rounds || 0;
-
                 // Create charts
                 createRoundsChart(result.charts.by_round || []);
                 createSpeciesChart(result.charts.by_species || []);
-                createTimelineChart(result.charts.timeline || []);
             }
         } catch (error) {
             console.error('Error loading analytics:', error);
@@ -280,74 +276,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function createTimelineChart(data) {
-        const ctx = document.getElementById('timelineChart');
-        if (!ctx) return;
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.map(d => d.date),
-                datasets: [{
-                    label: 'Collections',
-                    data: data.map(d => d.count),
-                    borderColor: 'rgba(0, 172, 237, 1)',
-                    backgroundColor: 'rgba(0, 172, 237, 0.15)',
-                    tension: 0.4,
-                    fill: true,
-                    borderWidth: 3,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: 'rgba(0, 172, 237, 1)',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 12,
-                        cornerRadius: 6,
-                        displayColors: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0,
-                            font: { size: 11 }
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: {
-                            font: { size: 10 },
-                            maxRotation: 45,
-                            minRotation: 0
-                        }
-                    }
-                }
-            }
-        });
-    }
-
     // Load submitted reports
     function loadSubmittedReports() {
         const container = document.getElementById('submitted-table-container');
-        const rowsSelect = document.getElementById('rowsPerPageSubmitted');
-        const searchInput = document.getElementById('searchInputSubmitted');
 
         container.innerHTML = '<div class="loading">Loading reports...</div>';
 
@@ -360,7 +291,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     container.innerHTML = '<p class="text-center">No reports found</p>';
                 }
             })
-            .catch(err => {
+            .catch(error => {
+                console.error('Error loading submitted reports:', error);
                 container.innerHTML = '<p class="text-center text-danger">Error loading reports</p>';
             });
 
@@ -458,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
 
             try {
-                const response = await fetch(`${BASE_URL}/api/reports/upload_report.php`, {
+                const response = await fetch(`${BASE_URL}/controllers/upload_report.php`, {
                     method: 'POST',
                     body: formData
                 });
@@ -469,6 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     showToast('Report uploaded successfully!', 'success');
                     form.reset();
                     previewContainer.innerHTML = '';
+                    loadRecentUploads();
                 } else {
                     showToast(result.message || 'Upload failed', 'error');
                 }
@@ -479,6 +412,58 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Report';
             }
         });
+    }
+
+    // Load recent uploads
+    function loadRecentUploads() {
+        const container = document.getElementById('recent-uploads-container');
+        if (!container) return;
+
+        container.innerHTML = '<div class="loading">Loading recent uploads...</div>';
+
+        fetch(`${BASE_URL}/api/reports/get_uploaded.php?limit=5`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && Array.isArray(data.reports) && data.reports.length > 0) {
+                    let html = `
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Type</th>
+                                    <th>Round</th>
+                                    <th>Cluster</th>
+                                    <th>Uploaded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.reports.map(report => `
+                                    <tr>
+                                        <td>${report.file_name}</td>
+                                        <td>${report.report_type || 'General'}</td>
+                                        <td>Round ${report.round}</td>
+                                        <td>${report.cluster_name || 'All'}</td>
+                                        <td>${new Date(report.uploaded_at).toLocaleDateString()}</td>
+                                        <td>
+                                            <button class="btn-icon" onclick="downloadReport(${report.id})" title="Download">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p class="text-center">No recent uploads</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading recent uploads:', error);
+                container.innerHTML = '<p class="text-center text-danger">Error loading recent uploads</p>';
+            });
     }
 
     // Utility functions

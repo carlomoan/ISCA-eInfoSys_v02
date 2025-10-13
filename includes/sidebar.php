@@ -86,6 +86,9 @@ $currentPage = getCurrentPage();
 <?php if (!empty($isAdmin)): ?>
         <h4><?= esc($texts['user_permissions'] ?? 'Permissions Settings') ?></h4>
         <nav class="admin-menu" aria-label="Admin menu">
+            <a href="<?= esc(BASE_URL) ?>/api/auth/register_user_pub.php" target="_blank">
+                <i class="fas fa-user-plus"></i> <?= esc($texts['add_user'] ?? 'Add New User') ?>
+            </a>
             <a href="<?= esc(BASE_URL) ?>/index.php?page=user_permissions&lang=<?= esc($lang) ?>">
                 <i class="fas fa-key"></i> <?= esc($texts['user_permissions'] ?? 'User Permissions') ?>
             </a>

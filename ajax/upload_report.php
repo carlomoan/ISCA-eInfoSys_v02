@@ -3,7 +3,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/ISCA-eInfoSys_v02/config/db_connect.php');
+require_once __DIR__ . '/../config/db_connect.php';
 
 header("Content-Type: application/json");
 
@@ -39,9 +39,9 @@ if (!in_array($fileExt, $allowedExtensions)) {
 }
 
 // ✅ Create upload directory if not exists
-$uploadDir = $_SERVER['DOCUMENT_ROOT'] . "/ISCA-eInfoSys_v02/uploads/reports/";
+$uploadDir = dirname(__DIR__) . "/uploads/reports/";
 if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0777, true);
+    mkdir($uploadDir, 0755, true);
 }
 
 // ✅ Generate unique file name
@@ -50,7 +50,7 @@ $uploadPath = $uploadDir . $uniqueName;
 
 try {
     if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-        // ✅ Save to DB
+        // ✅ Save to DB - Check if table exists first
         $stmt = $pdo->prepare("INSERT INTO uploaded_reports (file_name, report_type, round, cluster_name, file_path, uploaded_by, uploaded_at)
                                VALUES (:file_name, :report_type, :round, :cluster_name, :file_path, :uploaded_by, NOW())");
         $stmt->execute([
@@ -64,8 +64,17 @@ try {
 
         echo json_encode(["success" => true, "message" => "Report uploaded successfully."]);
     } else {
-        echo json_encode(["success" => false, "message" => "Failed to move uploaded file."]);
+        $uploadError = error_get_last();
+        error_log("File upload failed: " . print_r($uploadError, true));
+        echo json_encode(["success" => false, "message" => "Failed to move uploaded file. Check directory permissions."]);
     }
 } catch (Exception $e) {
-    echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
+    error_log("Upload report error: " . $e->getMessage());
+
+    // If table doesn't exist, provide helpful error
+    if (strpos($e->getMessage(), "uploaded_reports") !== false && strpos($e->getMessage(), "doesn't exist") !== false) {
+        echo json_encode(["success" => false, "message" => "Database table 'uploaded_reports' does not exist. Please run the database migration script."]);
+    } else {
+        echo json_encode(["success" => false, "message" => "Database error: " . $e->getMessage()]);
+    }
 }

@@ -56,9 +56,17 @@ try {
         exit;
     }
 
+    // Check if phone already exists
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE phone = :phone");
+    $stmt->execute([':phone' => $input['phone']]);
+    if ($stmt->fetchColumn() > 0) {
+        echo json_encode(["success" => false, "message" => "Phone number already registered"]);
+        exit;
+    }
+
     // Insert new user
-    $sql = "INSERT INTO users (fname, lname, email, phone, password, role_id, is_verified, user_project_id, created_at)
-            VALUES (:fname, :lname, :email, :phone, :password, 0, 0, 0, NOW())";
+    $sql = "INSERT INTO users (fname, lname, email, phone, password, role_id, is_verified, is_admin, lab_tech_id, user_project_id, created_at)
+            VALUES (:fname, :lname, :email, :phone, :password, 0, 0, 0, 0, 0, NOW())";
     $stmt = $pdo->prepare($sql);
     $ok = $stmt->execute([
         ':fname' => htmlspecialchars($input['fname']),
@@ -68,15 +76,19 @@ try {
         ':password' => password_hash($input['password'], PASSWORD_DEFAULT)
     ]);
 
-    // Save name in session for "awaiting approval" page
-    $_SESSION['fname'] = $input['fname'];
-    $_SESSION['lname'] = $input['lname'];
+    if ($ok) {
+        // Save name in session for "awaiting approval" page
+        $_SESSION['fname'] = $input['fname'];
+        $_SESSION['lname'] = $input['lname'];
 
-    echo json_encode($ok 
-        ? ["success" => true, "message" => "Registration successful! Await admin approval."]
-        : ["success" => false, "message" => "Failed to register"]
-    );
+        error_log("✓ User registered successfully: " . $input['email']);
+        echo json_encode(["success" => true, "message" => "Registration successful! Await admin approval."]);
+    } else {
+        error_log("✗ Failed to register user: " . $input['email']);
+        echo json_encode(["success" => false, "message" => "Failed to register. Please try again."]);
+    }
 
 } catch (PDOException $e) {
-    echo json_encode(["success" => false, "message" => "DB Error: " . $e->getMessage()]);
+    error_log("Registration error: " . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "Registration failed. Please contact administrator."]);
 }

@@ -151,47 +151,6 @@ $canDownload = ($_SESSION['is_admin'] ?? false) || checkPermission('download_rep
                     </div>
                     <canvas id="speciesChart"></canvas>
                 </div>
-
-                <div class="chart-card full-width">
-                    <div class="chart-header">
-                        <h4>Collection Timeline</h4>
-                        <button class="chart-action" onclick="exportChart('timelineChart')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                    <canvas id="timelineChart"></canvas>
-                </div>
-
-                <div class="stat-grid">
-                    <div class="metric-card">
-                        <i class="fas fa-bug metric-icon"></i>
-                        <div class="metric-content">
-                            <span class="metric-value" id="totalMosquitoes">0</span>
-                            <span class="metric-label">Total Mosquitoes</span>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fas fa-home metric-icon"></i>
-                        <div class="metric-content">
-                            <span class="metric-value" id="totalHouseholds">0</span>
-                            <span class="metric-label">Households</span>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fas fa-map-marked metric-icon"></i>
-                        <div class="metric-content">
-                            <span class="metric-value" id="totalClusters">0</span>
-                            <span class="metric-label">Clusters</span>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fas fa-sync-alt metric-icon"></i>
-                        <div class="metric-content">
-                            <span class="metric-value" id="totalRounds">0</span>
-                            <span class="metric-label">Rounds</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -265,6 +224,14 @@ $canDownload = ($_SESSION['is_admin'] ?? false) || checkPermission('download_rep
                     </button>
                 </div>
             </form>
+        </div>
+
+        <!-- Recent Uploaded Reports -->
+        <div class="content-card" style="margin-top: 20px;">
+            <div class="card-header">
+                <h3><i class="fas fa-history"></i> Recent Uploads (Last 5)</h3>
+            </div>
+            <div id="recent-uploads-container" class="table-container"></div>
         </div>
     </div>
     <?php endif; ?>

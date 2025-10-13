@@ -116,6 +116,9 @@ require_once __DIR__ . '/../../config/config.php';
 </div>
 
 <!-- JS -->
+<script>
+    const BASE_URL = '<?= BASE_URL ?>';
+</script>
 <script src="<?= BASE_URL ?>/assets/js/authjs/register_pub.js" defer></script>
 </body>
 </html>
