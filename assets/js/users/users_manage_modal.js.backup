@@ -1,22 +1,6 @@
-// ================= GLOBAL STATE =================
-let usersData = [];
-let currentUserId = null;
-
-// ================= FETCH USERS =================
-async function fetchUsers() {
-    try {
-        const res = await fetch(BASE_URL + "/api/users/users_list_api.php");
-        const data = await res.json();
-        if (data.success) {
-            usersData = data.users;
-            renderUsersTable(usersData);
-        } else {
-            console.error("Failed to fetch users:", data.message);
-        }
-    } catch (e) {
-        console.error("Error fetching users:", e);
-    }
-}
+// ================= MANAGE USER MODAL =================
+// Note: usersData and currentUserId are declared in users_table.js
+// This file handles the user management modal functionality
 
 function renderUsersTable(data) {
     const tbody = document.getElementById("usersBody");

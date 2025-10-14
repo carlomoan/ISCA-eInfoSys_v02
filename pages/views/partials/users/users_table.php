@@ -1,21 +1,24 @@
 <div id="views-users-container">
+  <div style="margin-bottom: 10px; padding: 8px; background: #e7f3ff; border-left: 4px solid #0066cc; border-radius: 4px;">
+    <i class="fas fa-info-circle" style="color: #0066cc;"></i>
+    <strong>User Management:</strong> Manage user accounts, assign roles, projects, and permissions. Use "No Role" for users without specific permissions.
+  </div>
   <table class="table">
     <thead>
       <tr>
         <th>ID</th>
-        <th>First Name</th>
-        <th>Last Name</th>
+        <th>Full Name</th>
         <th>Email</th>
         <th>Phone</th>
-        <th>Status</td>
-        <th>Position</th>
-        <th>Laboratory Duty</th>
-        <th>User Access</th>
-        <th>User Mapping</th>
+        <th>Role</th>
+        <th>Projects</th>
+        <th>Status</th>
+        <th>Lab Duty</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody id="usersBody">
-      <tr><td colspan="8">Loading users...</td></tr>
+      <tr><td colspan="9">Loading users...</td></tr>
     </tbody>
   </table>
 
@@ -24,11 +27,15 @@
 <div id="manageUserModal" class="modal hidden">
   <div class="modal-content">
     <span class="close-btn" onclick="closeManageUserModal()">&times;</span>
-    <h4 style="margin-bottom:2px;">Staff name: <span id="modalUserName"></span></h4>
-
-    <!-- Basic info -->
-    <div class="user-info">
-    <p><b>Staff Numer:</b> <span id="modalUserId"></span> | <b>Email:</b> <span id="modalUserEmail"></span> | <b>Phone:</b> <span id="modalUserPhone"></span></p>
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; margin: -15px -15px 15px -15px; border-radius: 8px 8px 0 0;">
+      <h4 style="margin: 0; font-size: 18px;">
+        <i class="fas fa-user-edit"></i> Manage User: <span id="modalUserName" style="font-weight: 600;"></span>
+      </h4>
+      <div style="margin-top: 8px; opacity: 0.95; font-size: 13px;">
+        <span style="margin-right: 15px;"><i class="fas fa-id-badge"></i> ID: <span id="modalUserId"></span></span>
+        <span style="margin-right: 15px;"><i class="fas fa-envelope"></i> <span id="modalUserEmail"></span></span>
+        <span><i class="fas fa-phone"></i> <span id="modalUserPhone"></span></span>
+      </div>
     </div>
 
     <!-- GRID LAYOUT -->
@@ -74,12 +81,15 @@
 
 <!-- Roles -->
 <div class="form-block">
-  <h5>Assign Role</h5>
-  <p class="current-status">Current: <span id="currentRolesText"></span></p>
-  <select id="assignRolesSelect">
+  <h5><i class="fas fa-user-tag"></i> Assign Role</h5>
+  <p class="current-status">Current: <span id="currentRolesText" style="font-weight: 600; color: #007bff;"></span></p>
+  <select id="assignRolesSelect" style="padding: 10px; border: 2px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; background: white; cursor: pointer;">
     <option value="">-- Select Role --</option>
   </select>
-  <select id="currentRolesList" multiple></select>
+  <small style="color: #666; margin-top: 4px; display: block;">
+    <i class="fas fa-info-circle"></i> Select "No Role" to remove all permissions
+  </small>
+  <select id="currentRolesList" multiple style="display: none;"></select>
 </div>
 
 
@@ -108,8 +118,13 @@
 
 
 <!-- Save -->
-<div class="form-footer">
-  <button id="saveUserChanges">Save Changes</button>
+<div class="form-footer" style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee; display: flex; gap: 10px; justify-content: flex-end;">
+  <button onclick="closeManageUserModal()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+    <i class="fas fa-times"></i> Cancel
+  </button>
+  <button id="saveUserChanges" style="background: #28a745; color: white; border: none; padding: 10px 30px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);">
+    <i class="fas fa-save"></i> Save Changes
+  </button>
 </div>
 </div>
 </div>

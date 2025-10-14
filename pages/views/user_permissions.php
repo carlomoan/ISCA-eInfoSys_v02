@@ -28,7 +28,6 @@ $canAddSurveys         = checkPermission('add_surveys') || ($_SESSION['is_admin'
 
 
 <script src="<?= BASE_URL ?>/assets/js/users/users_table.js" defer></script>
-<script src="<?= BASE_URL ?>/assets/js/users/users_manage_modal.js" defer></script>
 <script src="<?= BASE_URL ?>/assets/js/users/users_mapping_modal.js" defer></script>
 
    <div class="page-container">

@@ -10,7 +10,9 @@ const POLL_INTERVAL = 5000; // 5 sec
 // ================= FETCH USERS =================
 async function fetchUsers() {
     try {
-        const res = await fetch(BASE_URL + "/api/users/users_list_api.php");
+        const res = await fetch(BASE_URL + "/api/users/users_list_api.php", {
+            credentials: 'same-origin'
+        });
         const data = await res.json();
         if (data.success) {
             usersData = data.users;
@@ -26,17 +28,33 @@ async function fetchUsers() {
 function renderUsersTable(data) {
     const tbody = document.getElementById("usersBody");
     tbody.innerHTML = data.map(u => {
+        const fullName = `${u.fname} ${u.lname}`;
+        const roleName = u.role_name || "No Role";
+        const roleColor = roleName === "No Role" ? "#999" : "#333";
+        const statusBadge = u.is_verified
+            ? '<span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">✓ Verified</span>'
+            : '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">✗ Pending</span>';
+        const labBadge = u.lab_tech
+            ? '<span style="background: #17a2b8; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">Lab Tech</span>'
+            : '<span style="color: #999;">—</span>';
+        const projectsText = u.projects && u.projects.length > 0
+            ? u.projects.map(p => p.name).join(', ')
+            : '<span style="color: #999;">No projects</span>';
+
         return `<tr id="user-row-${u.id}">
-            <td>${u.id}</td>
-            <td>${u.fname}</td>
-            <td>${u.lname}</td>
+            <td style="font-weight: 600;">${u.id}</td>
+            <td style="font-weight: 500;">${fullName}</td>
             <td>${u.email}</td>
             <td>${u.phone}</td>
-            <td style="color: ${u.is_verified ? "green" : "red"}"> ${u.is_verified ? "Active" : "Not Active"} </td>
-            <td>${u.role_name || "-"}</td>
-            <td>${u.lab_tech ? "Lab Technician" : "Not Lab Technician"}</td>
-            <td><button class="manageUserBtn" data-id="${u.id}" type="button">User Access</button></td>
-            <td><button class="mapUserBtn" data-id="${u.id}" type="button">User Mapping</button></td>
+            <td style="color: ${roleColor}; font-weight: 500;">${roleName}</td>
+            <td style="font-size: 11px;">${projectsText}</td>
+            <td>${statusBadge}</td>
+            <td>${labBadge}</td>
+            <td>
+                <button class="manageUserBtn" data-id="${u.id}" type="button" style="background: #007bff; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    <i class="fas fa-user-cog"></i> Manage
+                </button>
+            </td>
         </tr>`;
     }).join("");
 }
@@ -45,18 +63,49 @@ function renderUsersTable(data) {
 async function loadAssignmentLists(user = null) {
     try {
         // ===== Roles =====
-        const rolesRes = await fetch(BASE_URL + "/api/roles/roles_list_api.php");
+        console.log("📋 Fetching roles from:", BASE_URL + "/api/roles/roles_list_api.php");
+        const rolesRes = await fetch(BASE_URL + "/api/roles/roles_list_api.php", {
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        console.log("📋 Response status:", rolesRes.status);
+
         const rolesData = await rolesRes.json();
-        if (rolesData.success) {
+        console.log("📋 Roles API Response:", rolesData);
+
+        if (rolesData.success && rolesData.roles) {
             const rolesSelect = document.getElementById("assignRolesSelect");
+            if (!rolesSelect) {
+                console.error("❌ assignRolesSelect element not found in DOM!");
+                return;
+            }
+
+            console.log("📋 Found select element, clearing and adding options...");
             rolesSelect.innerHTML = `<option value="">-- Select Role --</option>`;
-            rolesData.roles.forEach(role => {
+            console.log("📋 Loading", rolesData.roles.length, "roles into dropdown");
+
+            rolesData.roles.forEach((role, index) => {
                 const opt = document.createElement("option");
                 opt.value = role.id;
                 opt.textContent = role.name;
                 rolesSelect.appendChild(opt);
+                console.log(`📋 ${index + 1}. Added role: "${role.name}" (ID: ${role.id})`);
             });
-            if(user && user.roles && user.roles.length > 0) rolesSelect.value = user.roles[0].id;
+
+            console.log("✅ Total options in dropdown:", rolesSelect.options.length);
+
+            // Set current role if user has one
+            if(user && user.role_id) {
+                rolesSelect.value = user.role_id;
+                console.log("📋 Set current role to:", user.role_id);
+            }
+        } else {
+            console.error("❌ Roles API failed:", rolesData.message || "Unknown error");
+            if (rolesData.debug) {
+                console.error("❌ Debug info:", rolesData.debug);
+            }
         }
 
         // ===== Projects =====
