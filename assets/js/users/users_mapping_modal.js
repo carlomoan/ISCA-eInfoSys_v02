@@ -2,10 +2,17 @@
 async function openManageUserModal(userId) {
     currentUserId = userId;
     try {
-        const res = await fetch(`${BASE_URL}/api/users/users_modal_api.php?user_id=${userId}`);
-        const data = await res.json();
+        const response = await fetch(
+            `${BASE_URL}/api/users/users_modal_api.php?user_id=${userId}`,
+            {
+                credentials: 'include' // Same as manage_permissions.js
+            }
+        );
+        
+        const data = await response.json();
+        
         if (!data.success) {
-            alert("Error: " + data.message);
+            showToast(data.message || 'Failed to load user data', 'error');
             return;
         }
 
@@ -56,8 +63,9 @@ async function openManageUserModal(userId) {
         // Show modal
         document.getElementById("manageUserModal").classList.remove("hidden");
 
-    } catch (err) {
-        console.error("Error loading user modal:", err);
+    } catch (error) {
+        console.error("Error loading user modal:", error);
+        showToast('Error loading user data', 'error');
     }
 }
 
@@ -67,6 +75,8 @@ function closeManageUserModal() {
 
 function updateMultiSelect(selectId, values) {
     const select = document.getElementById(selectId);
+    if (!select) return;
+    
     select.innerHTML = "";
     values.forEach(val => {
         const opt = document.createElement("option");
@@ -91,33 +101,37 @@ async function saveUserChanges() {
     if (labSelectVal === "assign") labAction = "assign";
     if (labSelectVal === "revoke") labAction = "revoke";
 
-    const payload = {
-        user_id: currentUserId,
-        password: document.getElementById("resetPassword").value,
-        is_verified: document.getElementById("toggleVerify").value,
-        is_admin: document.getElementById("toggleAdmin").value,
-        role_id: document.getElementById("assignRolesSelect").value,
-        project_id: document.getElementById("assignProjectsSelect").value,
-        cluster_id: document.getElementById("assignClustersSelect").value,
-        lab_action: labAction
-    };
-
     try {
-        const res = await fetch(BASE_URL + "/api/users/users_modal_update_api.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+        const formData = new FormData();
+        formData.append('user_id', currentUserId);
+        formData.append('password', document.getElementById("resetPassword").value);
+        formData.append('is_verified', document.getElementById("toggleVerify").value);
+        formData.append('is_admin', document.getElementById("toggleAdmin").value);
+        formData.append('role_id', document.getElementById("assignRolesSelect").value);
+        formData.append('project_id', document.getElementById("assignProjectsSelect").value);
+        formData.append('cluster_id', document.getElementById("assignClustersSelect").value);
+        formData.append('lab_action', labAction);
+
+        const response = await fetch(`${BASE_URL}/api/users/users_modal_update_api.php`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include' // Same as manage_permissions.js
         });
-        const data = await res.json();
+        
+        const data = await response.json();
+        
         if (data.success) {
-            alert("User updated successfully!");
+            showToast("User updated successfully!", 'success');
             closeManageUserModal();
-            fetchUsers();
+            if (typeof fetchUsers === 'function') {
+                fetchUsers();
+            }
         } else {
-            alert("Error: " + data.message);
+            showToast(data.message || 'Failed to update user', 'error');
         }
-    } catch (err) {
-        console.error("Error saving user:", err);
+    } catch (error) {
+        console.error("Error saving user:", error);
+        showToast('Error saving user data', 'error');
     }
 }
 
@@ -128,4 +142,11 @@ document.addEventListener("click", e => {
     }
 });
 
-document.getElementById("saveUserChanges").addEventListener("click", saveUserChanges);
+document.addEventListener("click", e => {
+    if (e.target.id === "saveUserChanges") {
+        saveUserChanges();
+    }
+    if (e.target.id === "closeManageUserModal") {
+        closeManageUserModal();
+    }
+});

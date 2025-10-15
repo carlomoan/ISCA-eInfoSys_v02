@@ -5,28 +5,67 @@ let currentUserId = null;
 // Live Activity state
 let liveActivityRows = new Set();
 let liveActivityCount = 0;
-const POLL_INTERVAL = 5000; // 5 sec
+const POLL_INTERVAL = 5000;
+
+// ===== Initialize =====
+document.addEventListener('DOMContentLoaded', function() {
+    fetchUsers();
+    loadAssignmentLists();
+    pollLiveActivity();
+    
+    // Event listeners
+    document.addEventListener("click", e => {
+        if (e.target.classList.contains("manageUserBtn")) {
+            openManageUserModal(e.target.dataset.id);
+        }
+        
+        if (e.target.id === "saveUserChanges" || e.target.closest('#saveUserChanges')) {
+            saveUserChanges();
+        }
+        
+        if (e.target.id === "closeManageUserModal" || e.target.closest('#closeManageUserModal')) {
+            closeManageUserModal();
+        }
+        
+        if (e.target.id === "liveActivityBell" || e.target.closest('#liveActivityBell')) {
+            document.getElementById("liveActivityModal").classList.remove("hidden");
+        }
+    });
+});
 
 // ================= FETCH USERS =================
 async function fetchUsers() {
     try {
-        const res = await fetch(BASE_URL + "/api/users/users_list_api.php", {
-            credentials: 'same-origin'
-        });
-        const data = await res.json();
+        const response = await fetch(
+            `${BASE_URL}/api/users/users_list_api.php`,
+            {
+                credentials: 'include' // Same as manage_permissions.js
+            }
+        );
+        
+        const data = await response.json();
+        
         if (data.success) {
             usersData = data.users;
-            renderUsersTable(usersData);
+            renderUsersTable(data.users);
         } else {
-            console.error("Failed to fetch users:", data.message);
+            showToast(data.message || 'Failed to load users', 'error');
         }
-    } catch (e) {
-        console.error("Error fetching users:", e);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        showToast('Error loading users', 'error');
     }
 }
 
 function renderUsersTable(data) {
     const tbody = document.getElementById("usersBody");
+    if (!tbody) return;
+    
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem;">No users found</td></tr>';
+        return;
+    }
+    
     tbody.innerHTML = data.map(u => {
         const fullName = `${u.fname} ${u.lname}`;
         const roleName = u.role_name || "No Role";
@@ -63,96 +102,91 @@ function renderUsersTable(data) {
 async function loadAssignmentLists(user = null) {
     try {
         // ===== Roles =====
-        console.log("📋 Fetching roles from:", BASE_URL + "/api/roles/roles_list_api.php");
-        const rolesRes = await fetch(BASE_URL + "/api/roles/roles_list_api.php", {
-            credentials: 'same-origin',
-            headers: {
-                'Accept': 'application/json'
-            }
+        const rolesRes = await fetch(`${BASE_URL}/api/roles/roles_list_api.php`, {
+            credentials: 'include' // Same as manage_permissions.js
         });
-        console.log("📋 Response status:", rolesRes.status);
-
+        
         const rolesData = await rolesRes.json();
-        console.log("📋 Roles API Response:", rolesData);
 
         if (rolesData.success && rolesData.roles) {
             const rolesSelect = document.getElementById("assignRolesSelect");
-            if (!rolesSelect) {
-                console.error("❌ assignRolesSelect element not found in DOM!");
-                return;
-            }
+            if (rolesSelect) {
+                rolesSelect.innerHTML = `<option value="">-- Select Role --</option>`;
+                rolesData.roles.forEach(role => {
+                    const opt = document.createElement("option");
+                    opt.value = role.id;
+                    opt.textContent = role.name;
+                    rolesSelect.appendChild(opt);
+                });
 
-            console.log("📋 Found select element, clearing and adding options...");
-            rolesSelect.innerHTML = `<option value="">-- Select Role --</option>`;
-            console.log("📋 Loading", rolesData.roles.length, "roles into dropdown");
-
-            rolesData.roles.forEach((role, index) => {
-                const opt = document.createElement("option");
-                opt.value = role.id;
-                opt.textContent = role.name;
-                rolesSelect.appendChild(opt);
-                console.log(`📋 ${index + 1}. Added role: "${role.name}" (ID: ${role.id})`);
-            });
-
-            console.log("✅ Total options in dropdown:", rolesSelect.options.length);
-
-            // Set current role if user has one
-            if(user && user.role_id) {
-                rolesSelect.value = user.role_id;
-                console.log("📋 Set current role to:", user.role_id);
-            }
-        } else {
-            console.error("❌ Roles API failed:", rolesData.message || "Unknown error");
-            if (rolesData.debug) {
-                console.error("❌ Debug info:", rolesData.debug);
+                if(user && user.role_id) {
+                    rolesSelect.value = user.role_id;
+                }
             }
         }
 
         // ===== Projects =====
-        const projectsRes = await fetch(BASE_URL + "/api/projects/projects_list_api.php");
+        const projectsRes = await fetch(`${BASE_URL}/api/projects/projects_list_api.php`, {
+            credentials: 'include' // Same as manage_permissions.js
+        });
+        
         const projectsData = await projectsRes.json();
         if (projectsData.success) {
             const projectsSelect = document.getElementById("assignProjectsSelect");
-            projectsSelect.innerHTML = `<option value="">-- Select Project --</option>`;
-            projectsData.items.forEach(p => {
-                const opt = document.createElement("option");
-                opt.value = p.id;
-                opt.textContent = `${p.project_code || ""} ${p.name}`.trim();
-                projectsSelect.appendChild(opt);
-            });
-            if(user && user.projects && user.projects.length > 0) projectsSelect.value = user.projects[0].id;
+            if (projectsSelect) {
+                projectsSelect.innerHTML = `<option value="">-- Select Project --</option>`;
+                projectsData.items.forEach(p => {
+                    const opt = document.createElement("option");
+                    opt.value = p.id;
+                    opt.textContent = `${p.project_code || ""} ${p.name}`.trim();
+                    projectsSelect.appendChild(opt);
+                });
+                if(user && user.projects && user.projects.length > 0) {
+                    projectsSelect.value = user.projects[0].id;
+                }
+            }
         }
 
         // ===== Clusters =====
-        const clustersRes = await fetch(BASE_URL + "/api/clusters/clusters_list_api.php");
+        const clustersRes = await fetch(`${BASE_URL}/api/clusters/clusters_list_api.php`, {
+            credentials: 'include' // Same as manage_permissions.js
+        });
+        
         const clustersData = await clustersRes.json();
         if (clustersData.success) {
             const clustersSelect = document.getElementById("assignClustersSelect");
-            clustersSelect.innerHTML = `<option value="">-- Select Cluster --</option>`;
-            clustersData.items.forEach(c => {
-                const opt = document.createElement("option");
-                opt.value = c.id;
-                opt.textContent = c.name;
-                clustersSelect.appendChild(opt);
-            });
-            if(user && user.clusters && user.clusters.length > 0) clustersSelect.value = user.clusters[0].id;
+            if (clustersSelect) {
+                clustersSelect.innerHTML = `<option value="">-- Select Cluster --</option>`;
+                clustersData.items.forEach(c => {
+                    const opt = document.createElement("option");
+                    opt.value = c.id;
+                    opt.textContent = c.name;
+                    clustersSelect.appendChild(opt);
+                });
+                if(user && user.clusters && user.clusters.length > 0) {
+                    clustersSelect.value = user.clusters[0].id;
+                }
+            }
         }
 
         // ===== Lab Technician =====
         const labTechSelect = document.getElementById("assignLabTechsSelect");
-        labTechSelect.innerHTML = `
-            <option value="">-- Select Option --</option>
-            <option value="assign">Assign Lab Duty</option>
-            <option value="revoke">Revoke Lab Duty</option>
-        `;
-        if (user && user.lab_tech) {
-            labTechSelect.value = "revoke";
-        } else {
-            labTechSelect.value = "";
+        if (labTechSelect) {
+            labTechSelect.innerHTML = `
+                <option value="">-- Select Option --</option>
+                <option value="assign">Assign Lab Duty</option>
+                <option value="revoke">Revoke Lab Duty</option>
+            `;
+            if (user && user.lab_tech) {
+                labTechSelect.value = "revoke";
+            } else {
+                labTechSelect.value = "";
+            }
         }
 
     } catch (err) {
         console.error("Error loading assignment lists:", err);
+        showToast('Error loading assignment data', 'error');
     }
 }
 
@@ -160,10 +194,17 @@ async function loadAssignmentLists(user = null) {
 async function openManageUserModal(userId) {
     currentUserId = userId;
     try {
-        const res = await fetch(`${BASE_URL}/api/users/users_modal_api.php?user_id=${userId}`);
-        const data = await res.json();
+        const response = await fetch(
+            `${BASE_URL}/api/users/users_modal_api.php?user_id=${userId}`,
+            {
+                credentials: 'include' // Same as manage_permissions.js
+            }
+        );
+        
+        const data = await response.json();
+        
         if (!data.success) {
-            alert("Error: " + data.message);
+            showToast(data.message || 'Failed to load user data', 'error');
             return;
         }
 
@@ -214,8 +255,9 @@ async function openManageUserModal(userId) {
         // Show modal
         document.getElementById("manageUserModal").classList.remove("hidden");
 
-    } catch (err) {
-        console.error("Error loading user modal:", err);
+    } catch (error) {
+        console.error("Error loading user modal:", error);
+        showToast('Error loading user data', 'error');
     }
 }
 
@@ -225,6 +267,8 @@ function closeManageUserModal() {
 
 function updateMultiSelect(selectId, values) {
     const select = document.getElementById(selectId);
+    if (!select) return;
+    
     select.innerHTML = "";
     values.forEach(val => {
         const opt = document.createElement("option");
@@ -261,40 +305,53 @@ async function saveUserChanges() {
     };
 
     try {
-        const res = await fetch(BASE_URL + "/api/users/users_modal_update_api.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+        const formData = new FormData();
+        formData.append('user_id', currentUserId);
+        formData.append('password', document.getElementById("resetPassword").value);
+        formData.append('is_verified', document.getElementById("toggleVerify").value);
+        formData.append('is_admin', document.getElementById("toggleAdmin").value);
+        formData.append('role_id', document.getElementById("assignRolesSelect").value);
+        formData.append('project_id', document.getElementById("assignProjectsSelect").value);
+        formData.append('cluster_id', document.getElementById("assignClustersSelect").value);
+        formData.append('lab_action', labAction);
+
+        const response = await fetch(`${BASE_URL}/api/users/users_modal_update_api.php`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include' // Same as manage_permissions.js
         });
-        const data = await res.json();
+        
+        const data = await response.json();
+        
         if (data.success) {
-            alert("User updated successfully!");
+            showToast("User updated successfully!", 'success');
             closeManageUserModal();
             fetchUsers();
         } else {
-            alert("Error: " + data.message);
+            showToast(data.message || 'Failed to update user', 'error');
         }
-    } catch (err) {
-        console.error("Error saving user:", err);
+    } catch (error) {
+        console.error("Error saving user:", error);
+        showToast('Error saving user data', 'error');
     }
 }
-
-// ================= EVENT HANDLERS =================
-document.addEventListener("click", e => {
-    if (e.target.classList.contains("manageUserBtn")) {
-        openManageUserModal(e.target.dataset.id);
-    }
-});
-
-document.getElementById("saveUserChanges").addEventListener("click", saveUserChanges);
 
 // ================= LIVE ACTIVITY =================
 async function pollLiveActivity() {
     try {
-        const res = await fetch(BASE_URL + "/api/liveactivity/live_activity_api.php");
-        const data = await res.json();
+        const response = await fetch(
+            `${BASE_URL}/api/liveactivity/live_activity_api.php`,
+            {
+                credentials: 'include' // Same as manage_permissions.js
+            }
+        );
+        
+        const data = await response.json();
+        
         if (data.success && data.activities) {
             const listEl = document.getElementById("liveActivityList");
+            if (!listEl) return;
+            
             listEl.innerHTML = '';
             data.activities.forEach(act => {
                 const key = act.table + '-' + act.row_id;
@@ -306,25 +363,37 @@ async function pollLiveActivity() {
                 li.textContent = `[${act.created_at}] ${act.user_name} added row ${act.row_id} in ${act.table}`;
                 listEl.appendChild(li);
             });
-            document.getElementById("liveActivityCount").textContent = liveActivityCount;
+            const countEl = document.getElementById("liveActivityCount");
+            if (countEl) {
+                countEl.textContent = liveActivityCount;
+            }
         }
-    } catch (err) {
-        console.error("Live activity error:", err);
+    } catch (error) {
+        console.error("Live activity error:", error);
     }
     setTimeout(pollLiveActivity, POLL_INTERVAL);
 }
 
-// Modal toggle for live activity
-document.getElementById("liveActivityBell").addEventListener("click", () => {
-    document.getElementById("liveActivityModal").classList.remove("hidden");
-});
 function closeLiveActivityModal() {
     document.getElementById("liveActivityModal").classList.add("hidden");
 }
 
-// ================= INITIAL LOAD =================
-document.addEventListener("DOMContentLoaded", () => {
-    fetchUsers();
-    loadAssignmentLists();
-    pollLiveActivity();
-});
+// ===== Use the same showToast function from manage_permissions.js =====
+// If it's not available, use this fallback
+if (typeof showToast === 'undefined') {
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+}
