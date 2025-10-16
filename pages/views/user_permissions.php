@@ -18,6 +18,29 @@ $canAddPermissions     = checkPermission('grant_user_access')   || ($_SESSION['i
 $canAddClusters        = checkPermission('revoke_user_cluster')   || ($_SESSION['is_admin'] ?? false);
 $canAddProjects        = checkPermission('add_projects')   || ($_SESSION['is_admin'] ?? false);
 $canAddSurveys         = checkPermission('add_surveys') || ($_SESSION['is_admin'] ?? false);
+
+// Load roles data server-side (avoids session issues with AJAX)
+$roles = [];
+$projects = [];
+$clusters = [];
+try {
+    // Get all roles
+    $stmt = $pdo->prepare("SELECT id, name FROM roles ORDER BY name ASC");
+    $stmt->execute();
+    $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get all projects
+    $stmt = $pdo->prepare("SELECT project_id as id, project_name as name, project_code FROM projects ORDER BY project_name ASC");
+    $stmt->execute();
+    $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get all clusters
+    $stmt = $pdo->prepare("SELECT cluster_id as id, cluster_name as name FROM clusters ORDER BY cluster_name ASC");
+    $stmt->execute();
+    $clusters = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Error loading dropdown data: " . $e->getMessage());
+}
 ?>
 
 <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/users_table.css" />
@@ -176,9 +199,19 @@ $canAddSurveys         = checkPermission('add_surveys') || ($_SESSION['is_admin'
     </div> 
 
 <script>
+    // Current user info
     window.CURRENT_USER = {
         id: <?= json_encode($_SESSION['user_id'] ?? 0) ?>,
         role: <?= json_encode($_SESSION['role_name'] ?? '') ?>,
         name: <?= json_encode($_SESSION['full_name'] ?? '') ?>
     };
+
+    // Pre-loaded dropdown data (avoids AJAX session issues)
+    window.PRELOADED_DATA = {
+        roles: <?= json_encode($roles) ?>,
+        projects: <?= json_encode($projects) ?>,
+        clusters: <?= json_encode($clusters) ?>
+    };
+
+    console.log('✅ Pre-loaded data available:', window.PRELOADED_DATA);
 </script>

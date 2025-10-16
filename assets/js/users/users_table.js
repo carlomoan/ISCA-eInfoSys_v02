@@ -102,45 +102,49 @@ function renderUsersTable(data) {
 async function loadAssignmentLists(user = null) {
     try {
         // ===== Roles =====
-        const rolesRes = await fetch(`${BASE_URL}/api/roles/roles_list_api.php`, {
-            credentials: 'include' // Same as manage_permissions.js
-        });
-        
-        const rolesData = await rolesRes.json();
+        // Use preloaded data to avoid AJAX session issues (like role_permissions.php does)
+        console.log("📋 Loading roles from preloaded data...");
+        const rolesData = window.PRELOADED_DATA?.roles || [];
 
-        if (rolesData.success && rolesData.roles) {
+        if (rolesData.length > 0) {
             const rolesSelect = document.getElementById("assignRolesSelect");
             if (rolesSelect) {
                 rolesSelect.innerHTML = `<option value="">-- Select Role --</option>`;
-                rolesData.roles.forEach(role => {
+                console.log("📋 Loading", rolesData.length, "roles into dropdown");
+
+                rolesData.forEach((role, index) => {
                     const opt = document.createElement("option");
                     opt.value = role.id;
                     opt.textContent = role.name;
                     rolesSelect.appendChild(opt);
+                    console.log(`📋 ${index + 1}. Added role: "${role.name}" (ID: ${role.id})`);
                 });
+
+                console.log("✅ Total options in dropdown:", rolesSelect.options.length);
 
                 if(user && user.role_id) {
                     rolesSelect.value = user.role_id;
+                    console.log("📋 Set current role to:", user.role_id);
                 }
             }
+        } else {
+            console.error("❌ No preloaded roles data available!");
         }
 
         // ===== Projects =====
-        const projectsRes = await fetch(`${BASE_URL}/api/projects/projects_list_api.php`, {
-            credentials: 'include' // Same as manage_permissions.js
-        });
-        
-        const projectsData = await projectsRes.json();
-        if (projectsData.success) {
+        console.log("📋 Loading projects from preloaded data...");
+        const projectsData = window.PRELOADED_DATA?.projects || [];
+        if (projectsData.length > 0) {
             const projectsSelect = document.getElementById("assignProjectsSelect");
             if (projectsSelect) {
                 projectsSelect.innerHTML = `<option value="">-- Select Project --</option>`;
-                projectsData.items.forEach(p => {
+                projectsData.forEach(p => {
                     const opt = document.createElement("option");
                     opt.value = p.id;
-                    opt.textContent = `${p.project_code || ""} ${p.name}`.trim();
+                    opt.textContent = p.project_code ? `${p.project_code} - ${p.name}` : p.name;
                     projectsSelect.appendChild(opt);
                 });
+                console.log("✅ Loaded", projectsData.length, "projects");
                 if(user && user.projects && user.projects.length > 0) {
                     projectsSelect.value = user.projects[0].id;
                 }
@@ -148,21 +152,19 @@ async function loadAssignmentLists(user = null) {
         }
 
         // ===== Clusters =====
-        const clustersRes = await fetch(`${BASE_URL}/api/clusters/clusters_list_api.php`, {
-            credentials: 'include' // Same as manage_permissions.js
-        });
-        
-        const clustersData = await clustersRes.json();
-        if (clustersData.success) {
+        console.log("📋 Loading clusters from preloaded data...");
+        const clustersData = window.PRELOADED_DATA?.clusters || [];
+        if (clustersData.length > 0) {
             const clustersSelect = document.getElementById("assignClustersSelect");
             if (clustersSelect) {
                 clustersSelect.innerHTML = `<option value="">-- Select Cluster --</option>`;
-                clustersData.items.forEach(c => {
+                clustersData.forEach(c => {
                     const opt = document.createElement("option");
                     opt.value = c.id;
                     opt.textContent = c.name;
                     clustersSelect.appendChild(opt);
                 });
+                console.log("✅ Loaded", clustersData.length, "clusters");
                 if(user && user.clusters && user.clusters.length > 0) {
                     clustersSelect.value = user.clusters[0].id;
                 }
