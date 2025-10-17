@@ -280,13 +280,13 @@ class Permission {
             return true; // Admin has all permissions
         }
 
-        // Check permission through role
+        // Check permission through role (one-to-many: users.role_id)
         $stmt = $this->pdo->prepare("
             SELECT COUNT(*)
-            FROM user_roles ur
-            INNER JOIN role_permissions rp ON ur.role_id = rp.role_id
+            FROM users u
+            INNER JOIN role_permissions rp ON u.role_id = rp.role_id
             INNER JOIN permissions p ON rp.permission_id = p.id
-            WHERE ur.user_id = ? AND p.name = ?
+            WHERE u.id = ? AND p.name = ?
         ");
         $stmt->execute([$userId, $permissionName]);
 
@@ -527,8 +527,8 @@ class Permission {
                 LEFT JOIN user_permissions up ON p.id = up.permission_id AND up.user_id = ?
                     AND up.is_active = TRUE
                     AND (up.expires_at IS NULL OR up.expires_at > NOW())
-                LEFT JOIN user_roles ur ON ur.user_id = ?
-                LEFT JOIN role_permissions rp ON rp.role_id = ur.role_id AND rp.permission_id = p.id
+                LEFT JOIN users u ON u.id = ?
+                LEFT JOIN role_permissions rp ON rp.role_id = u.role_id AND rp.permission_id = p.id
                 WHERE (up.id IS NOT NULL OR rp.role_id IS NOT NULL)
             ";
 
@@ -612,11 +612,11 @@ class Permission {
 
                 UNION
 
-                -- Role permissions
-                SELECT 1 FROM user_roles ur
-                INNER JOIN role_permissions rp ON ur.role_id = rp.role_id
+                -- Role permissions (one-to-many: users.role_id)
+                SELECT 1 FROM users u
+                INNER JOIN role_permissions rp ON u.role_id = rp.role_id
                 INNER JOIN permissions p ON rp.permission_id = p.id
-                WHERE ur.user_id = ? AND p.name = ?
+                WHERE u.id = ? AND p.name = ?
                     AND (rp.project_id = ? OR rp.project_id = 0)
             ) AS combined
         ");

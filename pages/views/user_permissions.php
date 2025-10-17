@@ -43,24 +43,24 @@ try {
 }
 ?>
 
-<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/users_table.css" />
+<!-- Enhanced Styles -->
+<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/user_permissions_enhanced.css" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-
-
 <script src="<?= BASE_URL ?>/assets/js/users/users_table.js" defer></script>
+<script src="<?= BASE_URL ?>/assets/js/users/users_table_enhanced.js" defer></script>
 <script src="<?= BASE_URL ?>/assets/js/users/users_mapping_modal.js" defer></script>
 
-   <div class="page-container">
+<div class="page-container">
     <div id="toast-container"></div>
 
     <nav class="breadcrumb">
         <i class="fas fa-home"></i>
-        <a href="?page=dashboard">Dashboard</a> / Admininstrator <strong></strong>
+        <a href="?page=dashboard">Dashboard</a> / Administrator <strong></strong>
     </nav>
-    <h3 style="margin:8px 6px;" ><i class="fas fa-cog"></i> Administrator Panel: Management and Settings </h3>
+    <h3><i class="fas fa-cog"></i> Administrator Panel: Management and Settings</h3>
 
     <!-- Tabs -->
     <div class="tabs">
@@ -78,125 +78,115 @@ try {
     <div class="tab-content active" id="tab-user">
         <div class="top-actions">
             <div class="left-actions">
-                <div class="form-group">
-                    <p style="margin:2px 2px;" ><i class="fas fa-cog"></i><b>  Administrator:</b> User Management </p>
-                </div>
+                <p><i class="fas fa-users-cog"></i> User Management</p>
             </div>
-            <div class="left-actions">
-                <div class="form-group">
-                    <input type="text" id="filter-search" class="custom-search" placeholder="Type to search..." />
-                </div>
+            <div class="right-actions">
+                <input type="text" id="filter-search" class="custom-search" placeholder="Search users..." />
             </div>
         </div>
-            <?php include __DIR__ . '/partials/users/users_table.php'; ?>
-        </div>  
+        <?php include __DIR__ . '/partials/users/users_table_enhanced.php'; ?>
+    </div>  
 
      <!-- ====Tab 2: Roles View ==== -->
-    <div class="tab-content " id="tab-roles">
-    
+    <div class="tab-content" id="tab-roles">
         <?php if (!$canAddRoles): ?>
-            <p><em>You do not have permission.</em></p>
+            <div class="empty-state" style="padding: 60px 20px; text-align: center; background: white; border-radius: 12px;">
+                <i class="fas fa-lock" style="font-size: 64px; color: #d1d5db; margin-bottom: 16px;"></i>
+                <p style="color: #6b7280; font-size: 16px;">You do not have permission to access this section.</p>
+            </div>
         <?php else: ?>
         <div class="top-actions">
             <div class="left-actions">
-                <div class="form-group">
-                    <p style="margin:2px 2px;" ><i class="fas fa-cog"></i><b>  Administrator:</b> Roles Management </p>
-                </div>
+                <p><i class="fas fa-user-tag"></i> Roles Management</p>
             </div>
             <div class="right-actions">
-                <div class="form-group">
-                    <input type="text" id="filter-search" class="custom-search" placeholder="Type to search..." />
-                </div>
+                <input type="text" id="filter-search-roles" class="custom-search" placeholder="Search roles..." />
             </div>
         </div>
-             <div id="views-roles-container"></div>
+        <div id="views-roles-container" style="background: white; border-radius: 0 0 12px 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);"></div>
         <?php endif; ?>
     </div> 
 
     <!-- ====Tab 3: Permissions ==== -->
-    <div class="tab-content " id="tab-permissions">
+    <div class="tab-content" id="tab-permissions">
         <?php if (!$canAddPermissions): ?>
-            <p><em>You do not have permission.</em></p>
+            <div class="empty-state" style="padding: 60px 20px; text-align: center; background: white; border-radius: 12px;">
+                <i class="fas fa-lock" style="font-size: 64px; color: #d1d5db; margin-bottom: 16px;"></i>
+                <p style="color: #6b7280; font-size: 16px;">You do not have permission to access this section.</p>
+            </div>
         <?php else: ?>
         <div class="top-actions">
-            <div class="leftt-actions">
-                <div class="form-group">
-                    <p style="margin:2px 2px;" ><i class="fas fa-cog"></i><b>  Administrator:</b> Permissions and User Access Management</p>
-                </div>
+            <div class="left-actions">
+                <p><i class="fas fa-key"></i> Permissions & Access Management</p>
             </div>
             <div class="right-actions">
-                <div class="form-group">
-                    <input type="text" id="filter-search" class="custom-search" placeholder="Type to search..." />
-                </div>
+                <input type="text" id="filter-search-permissions" class="custom-search" placeholder="Search permissions..." />
             </div>
         </div>
-             <div id="views-roles-container"></div>
+        <div id="views-permissions-container" style="background: white; border-radius: 0 0 12px 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);"></div>
         <?php endif; ?>
     </div> 
 
-    <!-- ====Tab : User Clusters ==== -->
-    <div class="tab-content " id="tab-clusters">
+    <!-- ====Tab: User Clusters ==== -->
+    <div class="tab-content" id="tab-clusters">
         <?php if (!$canAddClusters): ?>
-            <p><em>You do not have permission.</em></p>
+            <div class="empty-state" style="padding: 60px 20px; text-align: center; background: white; border-radius: 12px;">
+                <i class="fas fa-lock" style="font-size: 64px; color: #d1d5db; margin-bottom: 16px;"></i>
+                <p style="color: #6b7280; font-size: 16px;">You do not have permission to access this section.</p>
+            </div>
         <?php else: ?>
         <div class="top-actions">
-            <div class="leftt-actions">
-                <div class="form-group">
-                    <p style="margin:2px 2px;" ><i class="fas fa-cog"></i><b>  Administrator:</b> Clusters and Users Management</p>
-                </div>
+            <div class="left-actions">
+                <p><i class="fas fa-map-marked-alt"></i> Clusters & Users Management</p>
             </div>
             <div class="right-actions">
-                <div class="form-group">
-                    <input type="text" id="filter-search" class="custom-search" placeholder="Type to search..." />
-                </div>
+                <input type="text" id="filter-search-clusters" class="custom-search" placeholder="Search clusters..." />
             </div>
         </div>
-             <div id="views-roles-container"></div>
+        <div id="views-clusters-container" style="background: white; border-radius: 0 0 12px 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);"></div>
         <?php endif; ?>
-    </div> 
-
+    </div>
 
     <!-- Tab 4: Projects -->
-    <div class="tab-content " id="tab-projects">
+    <div class="tab-content" id="tab-projects">
         <?php if (!$canAddProjects): ?>
-            <p><em>You do not have permission.</em></p>
+            <div class="empty-state" style="padding: 60px 20px; text-align: center; background: white; border-radius: 12px;">
+                <i class="fas fa-lock" style="font-size: 64px; color: #d1d5db; margin-bottom: 16px;"></i>
+                <p style="color: #6b7280; font-size: 16px;">You do not have permission to access this section.</p>
+            </div>
         <?php else: ?>
         <div class="top-actions">
             <div class="left-actions">
-                <div class="form-group">
-                    <p style="margin:2px 2px;" ><i class="fas fa-cog"></i><b>  Administrator:</b>  Projects and Site Management</p>
-                </div>
+                <p><i class="fas fa-project-diagram"></i> Projects & Site Management</p>
             </div>
             <div class="right-actions">
-                <div class="form-group">
-                    <input type="text" id="filter-search" class="custom-search" placeholder="Type to search..." />
-                </div>
+                <input type="text" id="filter-search-projects" class="custom-search" placeholder="Search projects..." />
             </div>
         </div>
-             <div id="views-roles-container"></div>
+        <div id="views-projects-container" style="background: white; border-radius: 0 0 12px 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);"></div>
         <?php endif; ?>
-    </div> 
+    </div>
 
     <!-- Tab 5: Surveys -->
-    <div class="tab-content " id="tab-surveys">
+    <div class="tab-content" id="tab-surveys">
         <?php if (!$canAddSurveys): ?>
-            <p><em>You do not have permission.</em></p>
+            <div class="empty-state" style="padding: 60px 20px; text-align: center; background: white; border-radius: 12px;">
+                <i class="fas fa-lock" style="font-size: 64px; color: #d1d5db; margin-bottom: 16px;"></i>
+                <p style="color: #6b7280; font-size: 16px;">You do not have permission to access this section.</p>
+            </div>
         <?php else: ?>
         <div class="top-actions">
             <div class="left-actions">
-                <div class="form-group">
-                    <p style="margin:2px 2px;" ><i class="fas fa-cog"></i><b>  Administrator:</b> Statistics and Survey Management</p>
-                </div>
+                <p><i class="fas fa-chart-bar"></i> Statistics & Survey Management</p>
             </div>
             <div class="right-actions">
-                <div class="form-group">
-                    <input type="text" id="filter-search" class="custom-search" placeholder="Type to search..." />
-                </div>
+                <input type="text" id="filter-search-surveys" class="custom-search" placeholder="Search surveys..." />
             </div>
         </div>
-             <div id="views-roles-container"></div>
+        <div id="views-surveys-container" style="background: white; border-radius: 0 0 12px 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);"></div>
         <?php endif; ?>
-    </div> 
+    </div>
+</div> 
 
 <script>
     // Current user info

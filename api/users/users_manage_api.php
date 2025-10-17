@@ -47,14 +47,10 @@ try {
     }
 
     // =================== Update role assignment ===================
+    // Using one-to-many relationship: role_id is directly in users table
     if ($role_id) {
-        // Remove previous roles for this user in user_roles
-        $stmt = $pdo->prepare("DELETE FROM user_roles WHERE user_id=:uid");
-        $stmt->execute([':uid'=>$user_id]);
-
-        // Insert new role
-        $stmt = $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (:uid, :rid)");
-        $stmt->execute([':uid'=>$user_id, ':rid'=>$role_id]);
+        $stmt = $pdo->prepare("UPDATE users SET role_id=:rid WHERE id=:uid");
+        $stmt->execute([':rid'=>$role_id, ':uid'=>$user_id]);
     }
 
     // =================== Update project assignment ===================

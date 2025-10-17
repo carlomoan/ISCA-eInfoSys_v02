@@ -14,7 +14,7 @@ if (!$userId) {
 
 try {
     // ================= BASIC USER INFO =================
-    $stmt = $pdo->prepare("SELECT id, fname, lname, email, phone, is_verified, is_admin 
+    $stmt = $pdo->prepare("SELECT id, fname, lname, email, phone, is_verified, is_admin, role_id
                            FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -27,16 +27,17 @@ try {
         exit;
     }
 
-// ================= ROLES =================
-// Pata roles zote za user kutoka user_roles + join roles table kwa name
-$stmt = $pdo->prepare("
-    SELECT ur.role_id AS id, r.name
-    FROM user_roles ur
-    LEFT JOIN roles r ON r.id = ur.role_id
-    WHERE ur.user_id = ?
-");
-$stmt->execute([$userId]);
-$user['roles'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // ================= ROLES =================
+    // Get role from users.role_id (one-to-many relationship)
+    $user['roles'] = [];
+    if (!empty($user['role_id'])) {
+        $stmt = $pdo->prepare("SELECT id, name FROM roles WHERE id = ?");
+        $stmt->execute([$user['role_id']]);
+        $role = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($role) {
+            $user['roles'] = [$role]; // Return as array for backward compatibility
+        }
+    }
 
 
     // ================= PROJECTS =================

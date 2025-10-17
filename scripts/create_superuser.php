@@ -103,19 +103,10 @@ try {
     // Step 6: Update user's role to Superuser
     echo PHP_EOL . "Step 6: Assigning Superuser role to user..." . PHP_EOL;
 
-    // Update user's role_id
+    // Update user's role_id (one-to-many relationship)
     $stmt = $pdo->prepare("UPDATE users SET role_id = ?, is_admin = 1 WHERE id = ?");
     $stmt->execute([$roleId, $userId]);
-    echo "   ✓ Updated user's role_id to $roleId" . PHP_EOL;
-
-    // Delete existing user_roles entries for this user
-    $stmt = $pdo->prepare("DELETE FROM user_roles WHERE user_id = ?");
-    $stmt->execute([$userId]);
-
-    // Insert new user_roles entry
-    $stmt = $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)");
-    $stmt->execute([$userId, $roleId]);
-    echo "   ✓ Updated user_roles entry" . PHP_EOL;
+    echo "   ✓ Updated user's role_id to $roleId in users table" . PHP_EOL;
 
     // Step 7: Set is_verified = 1
     $stmt = $pdo->prepare("UPDATE users SET is_verified = 1 WHERE id = ?");

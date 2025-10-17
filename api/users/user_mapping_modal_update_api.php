@@ -40,44 +40,50 @@ try {
         $stmt->execute([$is_admin, $user_id]);
     }
 
-   // ===== ROLE =====
-if (!empty($role_id)) {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_roles WHERE user_id = ? AND role_id = ?");
-    $stmt->execute([$user_id, $role_id]);
-    if ($stmt->fetchColumn() == 0) {
-        $stmt = $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)");
-        $stmt->execute([$user_id, $role_id]);
-    } else {
-        $stmt = $pdo->prepare("UPDATE user_roles SET role_id = ? WHERE user_id = ? AND role_id = ?");
-        $stmt->execute([$role_id, $user_id, $role_id]);
+    // ===== ROLE =====
+    // Using one-to-many relationship: role_id is directly in users table
+    if (!empty($role_id)) {
+        $stmt = $pdo->prepare("UPDATE users SET role_id = ? WHERE id = ?");
+        $stmt->execute([$role_id, $user_id]);
     }
-}
 
-// ===== PROJECT =====
-if (!empty($project_id)) {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_projects WHERE user_id = ? AND project_id = ?");
-    $stmt->execute([$user_id, $project_id]);
-    if ($stmt->fetchColumn() == 0) {
-        $stmt = $pdo->prepare("INSERT INTO user_projects (user_id, project_id) VALUES (?, ?)");
-        $stmt->execute([$user_id, $project_id]);
-    } else {
-        $stmt = $pdo->prepare("UPDATE user_projects SET project_id = ? WHERE user_id = ? AND project_id = ?");
-        $stmt->execute([$project_id, $user_id, $project_id]);
+    // ===== PROJECT =====
+    // Check if user already has a user_project record
+    if (!empty($project_id)) {
+        // First check if user has a user_project_id
+        $stmt = $pdo->prepare("SELECT user_project_id FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $current_user_project_id = $stmt->fetchColumn();
+
+        if ($current_user_project_id) {
+            // Update existing user_project record
+            $stmt = $pdo->prepare("UPDATE user_projects SET project_id = ? WHERE user_project_id = ?");
+            $stmt->execute([$project_id, $current_user_project_id]);
+        } else {
+            // Create new user_project record and link to user
+            $stmt = $pdo->prepare("INSERT INTO user_projects (user_id, project_id, created_at) VALUES (?, ?, NOW())");
+            $stmt->execute([$user_id, $project_id]);
+            $new_user_project_id = $pdo->lastInsertId();
+
+            // Update users table with the new user_project_id
+            $stmt = $pdo->prepare("UPDATE users SET user_project_id = ? WHERE id = ?");
+            $stmt->execute([$new_user_project_id, $user_id]);
+        }
     }
-}
 
-// ===== CLUSTER =====
-if (!empty($cluster_id)) {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_clusters WHERE user_id = ? AND cluster_id = ?");
-    $stmt->execute([$user_id, $cluster_id]);
-    if ($stmt->fetchColumn() == 0) {
-        $stmt = $pdo->prepare("INSERT INTO user_clusters (user_id, cluster_id) VALUES (?, ?)");
+    // ===== CLUSTER =====
+    // Many-to-many relationship via user_clusters pivot table
+    if (!empty($cluster_id)) {
+        // Check if this user-cluster combination already exists
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_clusters WHERE user_id = ? AND cluster_id = ?");
         $stmt->execute([$user_id, $cluster_id]);
-    } else {
-        $stmt = $pdo->prepare("UPDATE user_clusters SET cluster_id = ? WHERE user_id = ? AND cluster_id = ?");
-        $stmt->execute([$cluster_id, $user_id, $cluster_id]);
+        if ($stmt->fetchColumn() == 0) {
+            // Insert only if it doesn't exist
+            $stmt = $pdo->prepare("INSERT INTO user_clusters (user_id, cluster_id, assigned_at) VALUES (?, ?, NOW())");
+            $stmt->execute([$user_id, $cluster_id]);
+        }
+        // If it already exists, no action needed (already assigned)
     }
-}
 
 
     // ===== LAB TECHNICIAN =====
