@@ -20,12 +20,21 @@ $canDownload = ($_SESSION['is_admin'] ?? false) || checkPermission('download_rep
 ?>
 
 <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/data_entry_modern.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/data_tab_badges.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script src="<?= BASE_URL ?>/assets/js/upload_field.js" defer></script>
 <script src="<?= BASE_URL ?>/assets/js/upload_lab.js" defer></script>
 <script src="<?= BASE_URL ?>/assets/js/upload_merge.js" defer></script>
-<script src="<?= BASE_URL ?>/assets/js/data_tab.js" defer></script>
+<script src="<?= BASE_URL ?>/assets/js/data_tab_merged.js" defer></script>
+
+<script>
+// Pass permissions to JavaScript
+window.isAdmin = <?= json_encode($_SESSION['is_admin'] ?? false) ?>;
+window.userPermissions = {
+    approve_data: <?= json_encode(checkPermission('approve_data')) ?>
+};
+</script>
 
 <div class="page-container">
    <div id="toast-container"></div>

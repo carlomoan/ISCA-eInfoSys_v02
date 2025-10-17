@@ -1,0 +1,197 @@
+<?php
+require_once __DIR__ . '/../../../config/config.php';
+require_once ROOT_PATH . 'config/db_connect.php';
+require_once ROOT_PATH . 'helpers/permission_helper.php';
+require_once ROOT_PATH . 'vendor/autoload.php';
+
+if (session_status() == PHP_SESSION_NONE) {
+    $sessionConfig = Config::session();
+    session_name($sessionConfig['name']);
+    session_start();
+}
+
+use PhpOffice\PhpSpreadsheet\Reader\Csv;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+
+header('Content-Type: application/json');
+
+if (!checkPermission('data_entry')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Access denied']);
+    exit;
+}
+
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'User not logged in']);
+    exit;
+}
+
+// Check file upload
+if (!isset($_FILES['field_file']) || $_FILES['field_file']['error'] !== UPLOAD_ERR_OK) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'No file uploaded or upload error']);
+    exit;
+}
+
+$tmpFilePath = $_FILES['field_file']['tmp_name'];
+$fileName = $_FILES['field_file']['name'];
+$fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+// Column mapping
+$columnMapping = [
+    'start' => 'start', 'end' => 'end', 'deviceid' => 'deviceid', 'ento_fld_frm_title' => 'ento_fld_frm_title',
+    'field_coll_date' => 'field_coll_date', 'PREDTLS_GRP:fldrecname' => 'fldrecname', 'PREDTLS_GRP:clstname' => 'clstname',
+    'PREDTLS_GRP:clstid' => 'clstid', 'PREDTLS-CLUSTER_TYPE_GRP:clsttype_lst' => 'clsttype_lst', 'PREDTLS-CLUSTER_TYPE_GRP:round' => 'round',
+    'PREDTLS-CLUSTER_TYPE_GRP:hhcode' => 'hhcode', 'PREDTLS-CLUSTER_TYPE_GRP:hhname' => 'hhname',
+    'INFOQNSLAST-2_GRP:ddrln' => 'ddrln', 'INFOQNSLAST-2_GRP:aninsln' => 'aninsln', 'INFOQNSLAST-2_GRP:ddltwrk' => 'ddltwrk',
+    'INFOQNSLAST-2_GRP:ddltwrk_gcomment' => 'ddltwrk_gcomment', 'INFOQNSLAST-2_GRP:lighttrapid' => 'lighttrapid',
+    'INFOQNSLAST-2_GRP:collectionbgid' => 'collectionbgid', 'meta:instanceID' => 'instanceID'
+];
+
+// Required columns (ento_fld_frm_title is optional as it may not exist in older ODK forms)
+$requiredColumns = ['start','end','deviceid','field_coll_date','fldrecname','clstname','clstid','clsttype_lst','round','hhcode','hhname'];
+
+try {
+    // Load file
+    if ($fileExt === 'csv') {
+        $reader = new Csv();
+        $reader->setDelimiter(',');
+        $reader->setEnclosure('"');
+    } elseif (in_array($fileExt,['xls','xlsx'])) {
+        $reader = new Xlsx();
+    } else throw new Exception("Unsupported file type: .$fileExt");
+
+    $spreadsheet = $reader->load($tmpFilePath);
+    $worksheet = $spreadsheet->getActiveSheet();
+
+    $rows = [];
+    $headerRowRaw = [];
+    $headerRowMapped = [];
+
+    foreach ($worksheet->getRowIterator() as $rowIndex => $row) {
+        $cellIterator = $row->getCellIterator();
+        $cellIterator->setIterateOnlyExistingCells(false);
+        $cells = [];
+        foreach ($cellIterator as $cell) $cells[] = trim((string)$cell->getValue());
+
+        if ($rowIndex == 1) {
+            $headerRowRaw = $cells;
+            foreach ($headerRowRaw as $colName) $headerRowMapped[] = $columnMapping[$colName] ?? null;
+
+            foreach ($requiredColumns as $reqCol) {
+                if (!in_array($reqCol, $headerRowMapped)) throw new Exception("Missing required column: $reqCol");
+            }
+            continue;
+        }
+
+        if (count(array_filter($cells))===0) continue;
+
+        $rowData = [];
+        foreach ($headerRowRaw as $idx => $origCol) {
+            $dbCol = $columnMapping[$origCol] ?? null;
+            if ($dbCol!==null) $rowData[$dbCol] = $cells[$idx] ?? null;
+        }
+
+        $rowData['round'] = isset($rowData['round']) ? (int)$rowData['round'] : null;
+        if (empty($rowData['hhcode'])) throw new Exception("Missing hhcode on row $rowIndex");
+        if (empty($rowData['clstid'])) throw new Exception("Missing cluster ID (clstid) on row $rowIndex");
+        if (!isset($rowData['round']) || $rowData['round']===null) throw new Exception("Missing round on row $rowIndex");
+
+        // Optional normalization
+        foreach (['start','end','deviceid','ento_fld_frm_title','field_coll_date','fldrecname','clstname','clsttype_lst','hhname','ddrln','aninsln','ddltwrk','ddltwrk_gcomment','lighttrapid','collectionbgid','instanceID'] as $optField) {
+            if (!isset($rowData[$optField]) || $rowData[$optField]==='') $rowData[$optField]=null;
+        }
+
+        $rows[] = $rowData;
+    }
+
+    if (count($rows)===0) throw new Exception("No valid data rows found in file.");
+
+    $maxRound = max(array_column($rows,'round'));
+    $rows = array_filter($rows, fn($r)=>$r['round']===$maxRound);
+
+    // Deduplicate by hhcode+clstid+round
+    $uniqueKeys = [];
+    $uniqueRows = [];
+    foreach ($rows as $r) {
+        $key = $r['hhcode'].'_'.$r['clstid'].'_'.$r['round'];
+        if (!isset($uniqueKeys[$key])) {
+            $uniqueKeys[$key]=true;
+            $uniqueRows[]=$r;
+        }
+    }
+
+    // Delete old temp upload data
+    $stmtDel = $pdo->prepare("DELETE FROM temp_field_collector WHERE user_id=?");
+    $stmtDel->execute([$userId]);
+
+    // Prepare insert
+    $insertCols = ['start','end','deviceid','ento_fld_frm_title','field_coll_date','fldrecname','clstname','clstid','clsttype_lst','round','hhcode','hhname','ddrln','aninsln','ddltwrk','ddltwrk_gcomment','lighttrapid','collectionbgid','instanceID','user_id','created_at'];
+    $placeholders = implode(',', array_fill(0,count($insertCols),'?'));
+    $insertSql = "INSERT INTO temp_field_collector (".implode(',', $insertCols).") VALUES ($placeholders)";
+    $stmtInsert = $pdo->prepare($insertSql);
+    $now = date('Y-m-d H:i:s');
+
+    foreach ($uniqueRows as $row) {
+        $params=[];
+        foreach ($insertCols as $col) {
+            if ($col==='user_id') $params[]=$userId;
+            elseif ($col==='created_at') $params[]=$now;
+            else $params[]=$row[$col]??null;
+        }
+        $stmtInsert->execute($params);
+    }
+
+    // Fetch expected households only active
+    $stmtExp = $pdo->prepare("
+        SELECT h.hhcode, h.cluster_id AS clstid, c.cluster_name, u.phone, CONCAT(u.fname,' ',u.lname) AS field_recorder
+        FROM households h
+        INNER JOIN clusters c ON h.cluster_id=c.cluster_id
+        LEFT JOIN users u ON c.user_id=u.id
+        WHERE c.cluster_state_id=1 AND h.household_state_id=1
+    ");
+    $stmtExp->execute();
+    $expectedHouseholds = $stmtExp->fetchAll(PDO::FETCH_ASSOC);
+
+    $expectedKeys=[];
+    foreach ($expectedHouseholds as $hh) $expectedKeys[$hh['hhcode'].'_'.$hh['clstid']]=$hh;
+
+    // Uploaded keys
+    $uploadedKeys=[];
+    foreach ($uniqueRows as $r) $uploadedKeys[$r['hhcode'].'_'.$r['clstid']]=true;
+
+    // Missing households
+    $missingHouseholds=[];
+    foreach ($expectedKeys as $key=>$hh) {
+        if (!isset($uploadedKeys[$key])) {
+            $missingHouseholds[]=[
+                'hhcode'=>$hh['hhcode'],
+                'cluster_name'=>$hh['cluster_name']?:'-',
+                'field_recorder'=>$hh['field_recorder']?:'-',
+                'phone'=>$hh['phone']?:'-'
+            ];
+        }
+    }
+
+    // Preview rows (limit 60)
+    $previewRows = array_slice($uniqueRows,0,30);
+
+    echo json_encode([
+        'success'=>true,
+        'message'=>'Records Verification Result.',
+        'uploaded_count'=>count($uniqueRows),
+        'expected_count'=>count($expectedHouseholds),
+        'missing_count'=>count($missingHouseholds),
+        'missing_households'=>$missingHouseholds,
+        'preview'=>$previewRows
+    ]);
+    exit;
+
+} catch(Exception $e) {
+    http_response_code(400);
+    echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
+    exit;
+}
+

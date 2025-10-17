@@ -101,20 +101,25 @@ async function saveUserChanges() {
     if (labSelectVal === "assign") labAction = "assign";
     if (labSelectVal === "revoke") labAction = "revoke";
 
-    try {
-        const formData = new FormData();
-        formData.append('user_id', currentUserId);
-        formData.append('password', document.getElementById("resetPassword").value);
-        formData.append('is_verified', document.getElementById("toggleVerify").value);
-        formData.append('is_admin', document.getElementById("toggleAdmin").value);
-        formData.append('role_id', document.getElementById("assignRolesSelect").value);
-        formData.append('project_id', document.getElementById("assignProjectsSelect").value);
-        formData.append('cluster_id', document.getElementById("assignClustersSelect").value);
-        formData.append('lab_action', labAction);
+    const payload = {
+        user_id: currentUserId,
+        password: document.getElementById("resetPassword").value,
+        is_verified: document.getElementById("toggleVerify").value,
+        is_admin: document.getElementById("toggleAdmin").value,
+        role_id: document.getElementById("assignRolesSelect").value,
+        project_id: document.getElementById("assignProjectsSelect").value,
+        cluster_id: document.getElementById("assignClustersSelect").value,
+        lab_action: labAction
+    };
 
+    try {
+        // Send as JSON (API expects JSON, not FormData)
         const response = await fetch(`${BASE_URL}/api/users/users_modal_update_api.php`, {
             method: 'POST',
-            body: formData,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload),
             credentials: 'include' // Same as manage_permissions.js
         });
         

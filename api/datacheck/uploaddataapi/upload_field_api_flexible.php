@@ -269,28 +269,6 @@ try {
     $stmtInsert = $pdo->prepare($insertSql);
     $now = date('Y-m-d H:i:s');
 
-    // Helper function to parse datetime strings
-    $parseDateTime = function($value) {
-        if (empty($value)) return null;
-        try {
-            $dt = new DateTime($value);
-            return $dt->format('Y-m-d H:i:s');
-        } catch (Exception $e) {
-            return null;
-        }
-    };
-
-    // Helper function to parse date strings
-    $parseDate = function($value) {
-        if (empty($value)) return null;
-        try {
-            $dt = new DateTime($value);
-            return $dt->format('Y-m-d');
-        } catch (Exception $e) {
-            return null;
-        }
-    };
-
     foreach ($uniqueRows as $row) {
         $params = [];
         foreach ($insertCols as $col) {
@@ -298,10 +276,6 @@ try {
                 $params[] = $userId;
             } elseif ($col === 'created_at') {
                 $params[] = $now;
-            } elseif ($col === 'start' || $col === 'end') {
-                $params[] = $parseDateTime($row[$col] ?? null);
-            } elseif ($col === 'field_coll_date') {
-                $params[] = $parseDate($row[$col] ?? null);
             } else {
                 $params[] = $row[$col] ?? null;
             }

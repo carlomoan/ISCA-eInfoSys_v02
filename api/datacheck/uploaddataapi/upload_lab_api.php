@@ -175,7 +175,7 @@ try {
     }
 
     // Delete old temp data for this user
-    $pdo->exec("DELETE FROM temp_Lab_sorter WHERE user_id = " . (int)$userId);
+    $pdo->exec("DELETE FROM temp_lab_sorter WHERE user_id = " . (int)$userId);
 
     // deduplicate by hhcode and limit to 54
     $uniqueKeys = [];
@@ -193,7 +193,7 @@ try {
     $uploaded_count = count($uniqueRows);
 
     // Use an explicit INSERT with named placeholders (safe and avoids header-name issues)
-    $insertSql = "INSERT INTO temp_Lab_sorter (
+    $insertSql = "INSERT INTO temp_lab_sorter (
         start, end, deviceid, ento_lab_frm_title, lab_date,
         srtname, round, hhname, hhcode, field_coll_date,
         male_ag, female_ag, fed_ag, unfed_ag, gravid_ag, semi_gravid_ag,
@@ -239,21 +239,43 @@ try {
 
     $stmtInsert = $pdo->prepare($insertSql);
 
+    // Helper function to parse datetime strings
+    $parseDateTime = function($value) {
+        if (empty($value)) return null;
+        try {
+            $dt = new DateTime($value);
+            return $dt->format('Y-m-d H:i:s');
+        } catch (Exception $e) {
+            return null;
+        }
+    };
+
+    // Helper function to parse date strings
+    $parseDate = function($value) {
+        if (empty($value)) return null;
+        try {
+            $dt = new DateTime($value);
+            return $dt->format('Y-m-d');
+        } catch (Exception $e) {
+            return null;
+        }
+    };
+
     foreach ($uniqueRows as $row) {
         // compute cluster_id from hhcode prefix (same approach as before)
         $clusterId = (int) (substr((string)($row['hhcode'] ?? ''), 0, 5) ?: 0);
 
         $stmtInsert->execute([
-            ':start' => $row['start'] ?? null,
-            ':end' => $row['end'] ?? null,
+            ':start' => $parseDateTime($row['start'] ?? null),
+            ':end' => $parseDateTime($row['end'] ?? null),
             ':deviceid' => $row['deviceid'] ?? null,
             ':ento_lab_frm_title' => $row['ento_lab_frm_title'] ?? null,
-            ':lab_date' => $row['lab_date'] ?? null,
+            ':lab_date' => $parseDate($row['lab_date'] ?? null),
             ':srtname' => $row['srtname'] ?? null,
             ':round' => $row['round'] ?? 0,
             ':hhname' => $row['hhname'] ?? null,
             ':hhcode' => $row['hhcode'] ?? null,
-            ':field_coll_date' => $row['field_coll_date'] ?? null,
+            ':field_coll_date' => $parseDate($row['field_coll_date'] ?? null),
             ':male_ag' => $row['male_ag'] ?? 0,
             ':female_ag' => $row['female_ag'] ?? 0,
             ':fed_ag' => $row['fed_ag'] ?? 0,
